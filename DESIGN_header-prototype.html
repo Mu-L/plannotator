@@ -1,0 +1,825 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plannotator Header Prototype</title>
+<style>
+  :root {
+    --background: oklch(0.15 0.02 260);
+    --foreground: oklch(0.90 0.01 260);
+    --card: oklch(0.22 0.02 260);
+    --popover: oklch(0.28 0.025 260);
+    --primary: oklch(0.75 0.18 280);
+    --primary-foreground: oklch(0.15 0.02 260);
+    --muted: oklch(0.26 0.02 260);
+    --muted-foreground: oklch(0.72 0.02 260);
+    --destructive: oklch(0.65 0.20 25);
+    --border: oklch(0.35 0.02 260);
+    --input: oklch(0.26 0.02 260);
+    --success: oklch(0.72 0.17 150);
+    --success-foreground: oklch(0.15 0.02 260);
+    --warning: oklch(0.75 0.15 85);
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--background); color: var(--foreground);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1060px; margin: 0 auto; padding: 40px 24px 90px; }
+  h1 { font-size: 24px; font-weight: 650; letter-spacing: -0.02em; margin: 0 0 4px; }
+  .subtitle { color: var(--muted-foreground); font-size: 13.5px; margin: 0 0 26px; }
+  .subtitle a { color: var(--primary); text-decoration: none; }
+  .subtitle a:hover { text-decoration: underline; }
+  h2 {
+    font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .09em;
+    color: var(--muted-foreground); margin: 46px 0 12px; padding-top: 20px;
+    border-top: 1px solid color-mix(in oklab, var(--border) 55%, transparent);
+  }
+  .hint-line { font-size: 12.5px; color: var(--muted-foreground); margin: 0 0 14px; }
+  kbd {
+    display: inline-flex; align-items: center; justify-content: center; min-width: 17px; height: 16px; padding: 0 4px;
+    border-radius: 4px; background: var(--muted); border: 1px solid color-mix(in oklab, var(--border) 60%, transparent);
+    border-bottom-width: 2px; font-family: ui-monospace, monospace; font-size: 9.5px;
+    color: color-mix(in oklab, var(--foreground) 70%, transparent);
+  }
+
+  /* ---- controls ---- */
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .tabs { display: inline-flex; background: var(--muted); border-radius: 8px; padding: 3px; gap: 2px; }
+  .tab {
+    border: none; background: transparent; color: var(--muted-foreground);
+    font: inherit; font-size: 12.5px; font-weight: 550; padding: 5px 12px; border-radius: 6px; cursor: pointer;
+    transition: background .15s var(--ease), color .15s var(--ease);
+  }
+  .tab.active { background: var(--card); color: var(--foreground); box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+  .sim {
+    border: 1px solid var(--input); background: var(--background); color: var(--foreground);
+    font: inherit; font-size: 12.5px; font-weight: 550; height: 30px; padding: 0 12px; border-radius: 7px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .sim:hover { background: var(--muted); }
+  .sim .swatch { width: 8px; height: 8px; border-radius: 999px; background: var(--warning); }
+
+  /* ---- stage ---- */
+  .stage {
+    position: relative; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+    background: var(--background);
+    box-shadow: 0 1px 3px rgba(0,0,0,.25), 0 10px 30px -12px rgba(0,0,0,.5);
+  }
+  .hdr {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; border-bottom: 1px solid color-mix(in oklab, var(--border) 50%, transparent);
+    background: color-mix(in oklab, var(--card) 50%, var(--background));
+  }
+  .hdr.annotate { height: 48px; }
+  .hdr.review { height: 40px; padding: 4px 16px; }
+  .hdr-left, .hdr-right { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .wordmark { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+  .divider { width: 1px; height: 20px; background: color-mix(in oklab, var(--border) 50%, transparent); margin: 0 4px; flex: none; }
+  svg.i { width: 14px; height: 14px; flex: none; }
+  svg.i16 { width: 16px; height: 16px; flex: none; }
+  .branch { font-family: ui-monospace, monospace; font-size: 12px; }
+  .repo { font-size: 12px; color: color-mix(in oklab, var(--muted-foreground) 60%, transparent); display: inline-flex; align-items: center; gap: 5px; }
+  .chip {
+    height: 28px; padding: 0 10px; border-radius: 6px; border: none; cursor: default;
+    background: var(--muted); color: var(--foreground); font: inherit;
+    font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; flex: none;
+  }
+  .chip.quiet { background: transparent; color: var(--muted-foreground); }
+  .tgl {
+    position: relative; width: 28px; height: 28px; border-radius: 6px; border: none; background: transparent; cursor: default;
+    display: inline-flex; align-items: center; justify-content: center; color: var(--muted-foreground); flex: none;
+  }
+  .tgl .badge {
+    position: absolute; top: -4px; right: -4px; min-width: 14px; height: 14px; padding: 0 2px;
+    border-radius: 999px; background: var(--primary); color: var(--primary-foreground);
+    font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+    transition: transform .18s var(--ease);
+  }
+
+  .btn {
+    height: 28px; padding: 0 10px; border-radius: 6px; border: none; cursor: pointer;
+    font: inherit; font-size: 13px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex: none;
+    transition: filter .12s ease;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn:active { filter: brightness(0.94); }
+  .btn-success { background: var(--success); color: var(--success-foreground); box-shadow: 0 1px 2px rgba(0,0,0,.18); }
+  .btn-primary { background: var(--primary); color: var(--primary-foreground); box-shadow: 0 1px 2px rgba(0,0,0,.18); }
+  .btn-outline { border: 1px solid var(--input); background: var(--background); color: var(--foreground); }
+  .btn-muted { background: var(--muted); color: var(--muted-foreground); }
+  .btn-ghost-x {
+    width: 28px; height: 28px; padding: 0; justify-content: center;
+    background: transparent; color: var(--muted-foreground); border-radius: 6px;
+  }
+  .btn-ghost-x:hover { background: var(--muted); filter: none; }
+  .btn[disabled] { opacity: .5; pointer-events: none; }
+
+  .split { display: inline-flex; align-items: stretch; flex: none; }
+  .split .btn { border-radius: 6px 0 0 6px; }
+  .split .seg {
+    height: 28px; width: 24px; border: none; cursor: pointer; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 0 6px 6px 0; flex: none; transition: filter .12s ease;
+  }
+  .split .seg:hover { filter: brightness(1.1); }
+  .split .seg svg { transition: transform .18s var(--ease); }
+  .split .seg.open svg { transform: rotate(180deg); }
+  .seg-success { background: var(--success); color: var(--success-foreground); border-left: 1px solid color-mix(in oklab, var(--success-foreground) 25%, transparent); }
+  .seg-primary { background: var(--primary); color: var(--primary-foreground); border-left: 1px solid color-mix(in oklab, var(--primary-foreground) 25%, transparent); }
+  .count {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 17px; height: 17px; padding: 0 5px; border-radius: 999px;
+    font-size: 10.5px; font-weight: 700;
+    background: color-mix(in oklab, var(--primary-foreground) 18%, transparent);
+  }
+  .flip { animation: flip .22s var(--ease); }
+  @keyframes flip {
+    0% { transform: scale(.92); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* ---- doc skeleton ---- */
+  .doc { padding: 26px 40px 34px; min-height: 190px; }
+  .doc .line { height: 9px; border-radius: 5px; background: color-mix(in oklab, var(--muted) 80%, transparent); margin: 12px 0; position: relative; }
+  .doc .line.t { height: 13px; width: 42%; background: color-mix(in oklab, var(--muted-foreground) 30%, var(--muted)); margin-bottom: 20px; }
+  .doc .mark { position: absolute; top: -2px; bottom: -2px; border-radius: 5px; background: color-mix(in oklab, var(--warning) 32%, transparent); border-bottom: 2px solid var(--warning); opacity: 0; transition: opacity .25s ease; }
+  .doc.marked .mark { opacity: 1; }
+  .doc.review-doc .line { height: 11px; margin: 8px 0; }
+  .doc .add { background: color-mix(in oklab, var(--success) 16%, var(--muted)); }
+  .doc .del { background: color-mix(in oklab, var(--destructive) 14%, var(--muted)); }
+
+  /* ---- popover ---- */
+  .pop {
+    position: absolute; z-index: 40; width: 288px;
+    border-radius: 9px; background: var(--popover); border: 1px solid var(--border);
+    box-shadow: 0 16px 40px -10px rgba(0,0,0,.6);
+    overflow: hidden; transition: height .18s var(--ease);
+    transform-origin: top right;
+  }
+  .pop.in { animation: popin .16s var(--ease); }
+  @keyframes popin {
+    from { opacity: 0; transform: scale(.96) translateY(-4px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .pop-panel { padding: 4px; }
+  .pop-panel.fade { animation: fadein .16s ease; }
+  @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+  .mi { display: flex; flex-direction: column; gap: 1px; padding: 8px 10px; border-radius: 6px; cursor: pointer; }
+  .mi:hover { background: color-mix(in oklab, var(--muted) 65%, transparent); }
+  .mi .lbl { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 7px; }
+  .mi .lbl svg { width: 13px; height: 13px; flex: none; opacity: .85; }
+  .mi .sub { font-size: 11.5px; color: var(--muted-foreground); padding-left: 20px; }
+  .mi.destructive .lbl { color: var(--destructive); }
+  .mi .gate {
+    margin-left: auto; font-size: 8.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+    color: var(--muted-foreground); border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+    border-radius: 999px; padding: 1px 6px; flex: none;
+  }
+  .mdiv { height: 1px; margin: 4px 6px; background: color-mix(in oklab, var(--border) 55%, transparent); }
+  .back {
+    display: flex; align-items: center; gap: 6px; padding: 3px 6px 7px; border: none; background: none; cursor: pointer;
+    font: inherit; font-size: 11.5px; color: var(--muted-foreground); width: 100%; text-align: left;
+  }
+  .back:hover { color: var(--foreground); }
+  .back svg { width: 11px; height: 11px; }
+  .pop textarea {
+    display: block; width: 100%; min-height: 58px; max-height: 144px; resize: none;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--background); color: var(--foreground);
+    padding: 7px 10px; font: inherit; font-size: 13.5px; line-height: 1.4; outline: none;
+  }
+  .pop textarea:focus-visible { box-shadow: 0 0 0 1px color-mix(in oklab, var(--primary) 40%, transparent); }
+  .pop-foot { margin-top: 7px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 2px 2px; }
+  .pop-hint { font-size: 11px; color: var(--muted-foreground); }
+
+  /* ---- dialog ---- */
+  .overlay {
+    position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.45); animation: fadein .15s ease;
+  }
+  .dialog {
+    width: 400px; max-width: calc(100% - 40px); border-radius: 12px; background: var(--card); border: 1px solid var(--border);
+    padding: 18px; box-shadow: 0 24px 60px -12px rgba(0,0,0,.6); animation: popin .18s var(--ease);
+  }
+  .dialog h4 { margin: 0 0 6px; font-size: 15px; font-weight: 600; }
+  .dialog p { margin: 0; font-size: 13px; color: var(--muted-foreground); }
+  .dialog .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+  .btn-danger-outline { border: 1px solid color-mix(in oklab, var(--destructive) 45%, var(--input)); background: var(--background); color: var(--destructive); }
+
+  /* ---- toast ---- */
+  .toast-host { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 90; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  .toast {
+    background: var(--popover); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 16px; min-width: 300px; max-width: 460px;
+    box-shadow: 0 18px 44px -10px rgba(0,0,0,.65); animation: toastin .2s var(--ease);
+  }
+  .toast.out { animation: toastout .25s ease forwards; }
+  @keyframes toastin { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
+  @keyframes toastout { to { opacity: 0; transform: translateY(8px); } }
+  .toast .t1 { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 7px; }
+  .toast .t1 .dot { width: 7px; height: 7px; border-radius: 999px; flex: none; }
+  .toast .t2 { font-size: 11.5px; color: var(--muted-foreground); margin-top: 2px; font-family: ui-monospace, monospace; }
+
+  /* ---- state map ---- */
+  .map {
+    border: 1px solid var(--border); border-radius: 12px; padding: 22px 24px; background: color-mix(in oklab, var(--card) 55%, var(--background));
+    overflow-x: auto;
+  }
+  .map-row { display: flex; align-items: center; gap: 0; margin: 14px 0; min-width: 720px; }
+  .node {
+    border: 1px solid var(--border); background: var(--card); border-radius: 8px;
+    padding: 7px 14px; font-size: 12.5px; font-weight: 600; white-space: nowrap; flex: none;
+  }
+  .node.terminal { border-style: dashed; color: var(--muted-foreground); font-weight: 500; }
+  .node.start { border-color: color-mix(in oklab, var(--primary) 45%, var(--border)); }
+  .node.good { border-color: color-mix(in oklab, var(--success) 40%, var(--border)); }
+  .edge { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0 6px; flex: 1 0 auto; min-width: 88px; }
+  .edge .lab { font-size: 10.5px; color: var(--muted-foreground); white-space: nowrap; }
+  .edge .lab.back-lab { color: color-mix(in oklab, var(--muted-foreground) 65%, transparent); }
+  .edge .arr { width: 100%; height: 1px; background: color-mix(in oklab, var(--muted-foreground) 45%, transparent); position: relative; }
+  .edge .arr::after { content: ""; position: absolute; right: -1px; top: -3px; border: 3.5px solid transparent; border-left-color: color-mix(in oklab, var(--muted-foreground) 55%, transparent); }
+  .edge .arr.rev::after { right: auto; left: -1px; border-left-color: transparent; border-right-color: color-mix(in oklab, var(--muted-foreground) 55%, transparent); }
+  .map-note { font-size: 11.5px; color: var(--muted-foreground); margin-top: 12px; }
+  .flipnode {
+    display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted-foreground);
+    border: 1px dashed color-mix(in oklab, var(--border) 80%, transparent); border-radius: 8px; padding: 7px 12px;
+  }
+  .flipnode b { color: var(--foreground); font-weight: 600; }
+
+  /* ---- sidebar section ---- */
+  .side-wrap { display: flex; gap: 26px; align-items: flex-start; flex-wrap: wrap; }
+  .side-panel { width: 320px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); overflow: hidden; flex: none; }
+  .side-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid color-mix(in oklab, var(--border) 50%, transparent); font-size: 12px; font-weight: 600; }
+  .side-sec { padding: 10px 12px 4px; display: flex; align-items: center; justify-content: space-between; }
+  .side-sec .sec-lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--muted-foreground); }
+  .side-add { height: 24px; padding: 0 9px; border-radius: 6px; border: none; cursor: pointer; background: var(--muted); color: var(--foreground); font: inherit; font-size: 11.5px; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; }
+  .side-add:hover { filter: brightness(1.1); }
+  .side-add svg { width: 12px; height: 12px; }
+  .side-body { padding: 8px 12px 12px; }
+  .side-empty { padding: 8px 10px; border: 1px dashed color-mix(in oklab, var(--border) 70%, transparent); border-radius: 8px; font-size: 12px; color: var(--muted-foreground); }
+  .gc-item { border: 1px solid color-mix(in oklab, var(--border) 70%, transparent); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; margin-bottom: 8px; animation: fadein .2s ease; }
+  .gc-item .who { font-size: 10.5px; color: var(--muted-foreground); margin-bottom: 2px; }
+  .side-composer textarea { display: block; width: 100%; min-height: 50px; resize: none; border: 1px solid var(--border); border-radius: 6px; background: var(--background); color: var(--foreground); padding: 6px 9px; font: inherit; font-size: 12.5px; outline: none; }
+  .side-composer .row { display: flex; justify-content: flex-end; gap: 6px; margin-top: 6px; }
+  .side-note { max-width: 420px; font-size: 12.5px; color: var(--muted-foreground); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Header prototype — one decision control</h1>
+  <p class="subtitle">
+    Interactive proposal. Click everything: the pill, the caret, the menu, the X. Current-state
+    reference (static, from the real code): <a href="DESIGN_header-states.html">DESIGN_header-states.html</a> ·
+    rationale: <a href="DESIGN_header-states.md">DESIGN_header-states.md</a>
+  </p>
+
+  <div class="controls">
+    <div class="tabs" id="tabs"></div>
+    <button class="sim" id="simBtn"><span class="swatch"></span><span id="simLabel">Simulate: add 3 annotations</span></button>
+  </div>
+  <p class="hint-line">Caret opens the menu · "…with a note" morphs it into the composer · <kbd>Esc</kbd> steps back (draft kept) · <kbd>⌘</kbd><kbd>↩</kbd> fires the visible primary.</p>
+
+  <div class="stage" id="stage">
+    <div id="hdrHost"></div>
+    <div id="docHost"></div>
+    <div class="pop in" id="pop" hidden><div id="popInner"></div></div>
+    <div id="dlgHost"></div>
+  </div>
+
+  <h2>State map — the whole machine</h2>
+  <div class="map">
+    <div class="map-row">
+      <div class="node start">Closed</div>
+      <div class="edge"><span class="lab">primary click · ⌘↩</span><div class="arr"></div></div>
+      <div class="node terminal">Submitted</div>
+    </div>
+    <div class="map-row">
+      <div class="node start">Closed</div>
+      <div class="edge"><span class="lab">caret click</span><div class="arr"></div><span class="lab back-lab">Esc · outside click</span><div class="arr rev"></div></div>
+      <div class="node">Menu</div>
+      <div class="edge"><span class="lab">"…with a note" · "Request changes…"</span><div class="arr"></div><span class="lab back-lab">Esc (draft kept)</span><div class="arr rev"></div></div>
+      <div class="node">Composer</div>
+      <div class="edge"><span class="lab">type → ⌘↩ / labeled action</span><div class="arr"></div></div>
+      <div class="node terminal">Submitted</div>
+    </div>
+    <div class="map-row">
+      <div class="node">Menu</div>
+      <div class="edge"><span class="lab">"Approve with notes" (capability-gated)</span><div class="arr"></div></div>
+      <div class="node terminal">Submitted</div>
+    </div>
+    <div class="map-row">
+      <div class="node">Menu</div>
+      <div class="edge"><span class="lab">"…discard n annotations…"</span><div class="arr"></div><span class="lab back-lab">Cancel</span><div class="arr rev"></div></div>
+      <div class="node">Confirm</div>
+      <div class="edge"><span class="lab">Discard &amp; approve/finish</span><div class="arr"></div></div>
+      <div class="node terminal">Submitted</div>
+    </div>
+    <div class="map-row">
+      <div class="flipnode">annotation added / removed (any source — selection, sidebar general comment, external agent) flips the primary in place:&nbsp;<b>Done / Approve ▾</b>&nbsp;⇄&nbsp;<b>Send Feedback · n ▾</b>&nbsp;and swaps the menu contents</div>
+    </div>
+    <div class="map-note">
+      Ghost X (Close) is outside the machine: it dismisses; with feedback present it confirms first (existing dialog).
+      Approve and Send Feedback are never simultaneously visible — the alternate decision is always a menu item.
+    </div>
+  </div>
+
+  <h2>Sidebar affordance — not a header state</h2>
+  <div class="side-wrap">
+    <div class="side-panel">
+      <div class="side-head">Annotations <span id="sideCount" style="color:var(--muted-foreground);font-weight:400;">0</span></div>
+      <div class="side-sec">
+        <span class="sec-lbl">General</span>
+        <button class="side-add" id="gcBtn"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>General comment</button>
+      </div>
+      <div class="side-body" id="gcBody">
+        <div class="side-empty">Review-level feedback, not tied to a file or line.</div>
+      </div>
+    </div>
+    <p class="side-note">
+      Review's annotations sidebar gains a human <b>+ General comment</b> (parity with annotate's
+      floating "Global comment"). It is a sidebar affordance, not a header state — but a general
+      comment counts as feedback, so adding one here flips the header control above. Try it.
+    </p>
+  </div>
+
+</div>
+
+<div class="toast-host" id="toastHost"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var ICONS = {
+    check: '<svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>',
+    send: '<svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m22 2-7 20-4-9-9-4Z"/><path stroke-linecap="round" d="M22 2 11 13"/></svg>',
+    x: '<svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M18 6 6 18M6 6l12 12"/></svg>',
+    caret: '<svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>',
+    backc: '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>',
+    msg: '<svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>',
+    spark: '<svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.9 15.5a2 2 0 0 0-1.4-1.4l-6.1-1.6a.5.5 0 0 1 0-1l6.1-1.6a2 2 0 0 0 1.4-1.4l1.6-6.1a.5.5 0 0 1 1 0l1.6 6.1a2 2 0 0 0 1.4 1.4l6.1 1.6a.5.5 0 0 1 0 1l-6.1 1.6a2 2 0 0 0-1.4 1.4l-1.6 6.1a.5.5 0 0 1-1 0z"/></svg>',
+    bot: '<svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="5" y="8" width="14" height="10" rx="2"/><path stroke-linecap="round" d="M12 8V5M9 12h.01M15 12h.01"/></svg>',
+    menu: '<svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>',
+    tree: '<svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10h7a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2.5a1 1 0 0 1-.8-.4l-.9-1.2A1 1 0 0 0 15 3h-2a1 1 0 0 0-1 1z"/><path d="M13 21h7a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-2.9a1 1 0 0 1-.9-.55l-.44-.9a1 1 0 0 0-.9-.55H13a1 1 0 0 0-1 1z"/><path d="M3 5a2 2 0 0 0 2 2h3"/><path d="M3 3v13a2 2 0 0 0 2 2h3"/></svg>',
+    repo: '<svg style="width:12px;height:12px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>'
+  };
+  var mSend = '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m22 2-7 20-4-9-9-4Z"/><path stroke-linecap="round" d="M22 2 11 13"/></svg>';
+  var mCheck = '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>';
+
+  var state = {
+    app: 'annotate',     // 'annotate' | 'review'
+    count: 0,            // annotation count
+    pop: null,           // null | 'menu' | 'composer'
+    item: null,          // active composer item
+    drafts: {},
+    confirm: null        // active confirm spec
+  };
+
+  var stage = document.getElementById('stage');
+  var hdrHost = document.getElementById('hdrHost');
+  var docHost = document.getElementById('docHost');
+  var pop = document.getElementById('pop');
+  var popInner = document.getElementById('popInner');
+  var dlgHost = document.getElementById('dlgHost');
+
+  /* ------------------------------------------------ model */
+
+  function has() { return state.count > 0; }
+  function n() { return state.count; }
+  function verb() { return state.app === 'annotate' ? 'Done' : 'Approve'; }
+
+  function primarySpec() {
+    if (!has()) {
+      return state.app === 'annotate'
+        ? { label: 'Done', cls: 'btn-success', seg: 'seg-success', icon: ICONS.check,
+            toast: ['Done — review finished', 'POST /api/feedback · "User reviewed the document and has no feedback."'] }
+        : { label: 'Approve', cls: 'btn-success', seg: 'seg-success', icon: ICONS.check,
+            toast: ['Approved — LGTM', 'POST /api/feedback · { approved: true }'] };
+    }
+    return { label: 'Send Feedback', cls: 'btn-primary', seg: 'seg-primary', icon: ICONS.send, count: n(),
+      toast: ['Feedback sent', 'POST /api/feedback · ' + n() + ' annotations as change requests'] };
+  }
+
+  function menuSpec() {
+    var items = [];
+    if (!has()) {
+      items.push({ id: 'note-pos', icon: mCheck,
+        label: verb() + ' with a note…',
+        sub: 'Finish and send a short note with the approval',
+        composer: { title: verb() + ' with a note', action: verb() + ' — send note', cls: 'btn-success', icon: ICONS.check,
+          toast: [verb() + ' — note sent with approval', 'POST /api/feedback · approval + note as general comment'] } });
+      items.push({ div: true });
+      items.push({ id: 'note-neg', icon: mSend,
+        label: 'Request changes…',
+        sub: 'Write overall feedback — sent as a change request',
+        composer: { title: 'Request changes', action: 'Send as feedback', cls: 'btn-primary', icon: ICONS.send,
+          toast: ['Change request sent', 'POST /api/feedback · note as general comment, no annotations'] } });
+    } else {
+      items.push({ id: 'note-send', icon: mSend,
+        label: 'Send with a note…',
+        sub: 'Add an overall note on top of your ' + n() + ' annotations',
+        composer: { title: 'Send with a note', action: 'Send feedback with note', cls: 'btn-primary', icon: ICONS.send,
+          toast: ['Feedback sent with note', 'POST /api/feedback · ' + n() + ' annotations + overall note'] } });
+      items.push({ div: true });
+      if (state.app === 'review') {
+        items.push({ id: 'appr-notes', icon: mCheck, gated: true,
+          label: 'Approve with notes',
+          sub: 'Approve; your ' + n() + ' annotations ride along as non-blocking guidance',
+          direct: ['Approved with notes', 'POST /api/feedback · approved + ' + n() + ' annotations as guidance'] });
+      }
+      items.push({ id: 'discard', icon: mCheck, destructive: true,
+        label: (state.app === 'annotate' ? 'Done' : 'Approve') + ', discard ' + n() + ' annotations…',
+        sub: 'Asks to confirm — the annotations are not sent',
+        confirm: {
+          title: 'Discard ' + n() + ' annotations and ' + (state.app === 'annotate' ? 'finish' : 'approve') + '?',
+          body: state.app === 'annotate'
+            ? 'Your annotations are change requests. Finishing without them sends a "reviewed, no feedback" record.'
+            : 'Your annotations are change requests. Approving without them tells the agent no changes are needed.',
+          action: 'Discard & ' + (state.app === 'annotate' ? 'finish' : 'approve'),
+          toast: [(state.app === 'annotate' ? 'Done' : 'Approved') + ' — ' + n() + ' annotations discarded',
+            'POST /api/feedback · ' + (state.app === 'annotate' ? '"reviewed, no feedback" record' : '{ approved: true }, annotations dropped')] } });
+    }
+    return items;
+  }
+
+  /* ------------------------------------------------ header render */
+
+  function renderHeader(animatePill) {
+    var p = primarySpec();
+    var pill =
+      '<span class="split" id="pill' + '">' +
+        '<button class="btn ' + p.cls + '" id="primaryBtn">' + p.icon + p.label +
+          (p.count ? '<span class="count">' + p.count + '</span>' : '') + '</button>' +
+        '<button class="seg ' + p.seg + (state.pop ? ' open' : '') + '" id="caretBtn" aria-label="More decisions" aria-expanded="' + (!!state.pop) + '">' + ICONS.caret + '</button>' +
+      '</span>';
+    var closeBtn = '<button class="btn btn-ghost-x" id="closeBtn" title="' +
+      (state.app === 'annotate' ? 'Close without telling the agent' : 'Close review without feedback') + '">' + ICONS.x + '</button>';
+
+    var html;
+    if (state.app === 'annotate') {
+      html =
+        '<div class="hdr annotate">' +
+          '<div class="hdr-left"><span class="wordmark">Plannotator</span></div>' +
+          '<div class="hdr-right">' +
+            closeBtn + pill +
+            '<div class="divider"></div>' +
+            '<button class="tgl" tabindex="-1">' + ICONS.msg + (has() ? '<span class="badge">' + n() + '</span>' : '') + '</button>' +
+            '<button class="tgl" tabindex="-1">' + ICONS.spark + '</button>' +
+            '<button class="chip quiet" tabindex="-1">' + ICONS.menu + 'Options</button>' +
+          '</div>' +
+        '</div>';
+    } else {
+      html =
+        '<div class="hdr review">' +
+          '<div class="hdr-left">' +
+            '<button class="tgl" tabindex="-1">' + ICONS.tree + '</button>' +
+            '<div class="divider"></div>' +
+            '<button class="chip" tabindex="-1">Guide</button>' +
+            '<div class="divider"></div>' +
+            '<span class="branch">feat/embed-picker</span>' +
+            '<span class="repo">' + ICONS.repo + 'ramos/plannotator</span>' +
+          '</div>' +
+          '<div class="hdr-right">' +
+            closeBtn + pill +
+            '<div class="divider"></div>' +
+            '<button class="tgl" tabindex="-1">' + ICONS.msg + (has() ? '<span class="badge">' + n() + '</span>' : '') + '</button>' +
+            '<button class="tgl" tabindex="-1">' + ICONS.spark + '</button>' +
+            '<button class="tgl" tabindex="-1">' + ICONS.bot + '</button>' +
+            '<div class="divider"></div>' +
+            '<button class="chip quiet" tabindex="-1">' + ICONS.menu + 'Options</button>' +
+          '</div>' +
+        '</div>';
+    }
+    hdrHost.innerHTML = html;
+    if (animatePill) {
+      var pillEl = document.getElementById('pill');
+      pillEl.classList.add('flip');
+      pillEl.addEventListener('animationend', function () { pillEl.classList.remove('flip'); }, { once: true });
+    }
+    document.getElementById('primaryBtn').addEventListener('click', function () {
+      closePop();
+      var s = primarySpec();
+      toast(s.toast[0], s.toast[1], s.cls === 'btn-primary' ? 'var(--primary)' : 'var(--success)');
+    });
+    document.getElementById('caretBtn').addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (state.pop) closePop(); else openMenu();
+    });
+    document.getElementById('closeBtn').addEventListener('click', function () {
+      closePop();
+      if (has()) {
+        openConfirm({
+          title: "Feedback Won't Be Sent",
+          body: 'You have ' + n() + ' annotation' + (n() === 1 ? '' : 's') + ' that will be lost if you close. To send this feedback, use Send Feedback instead.',
+          action: 'Close Anyway',
+          toast: ['Session closed', 'Nothing sent · draft kept on disk'] });
+      } else {
+        toast('Session closed', state.app === 'annotate' ? '/api/exit · decision record: dismissed' : '/api/exit · no feedback sent', 'var(--muted-foreground)');
+      }
+    });
+  }
+
+  function renderDoc() {
+    var html;
+    if (state.app === 'annotate') {
+      html = '<div class="doc' + (has() ? ' marked' : '') + '">' +
+        '<div class="line t"></div>' +
+        '<div class="line" style="width:96%"><span class="mark" style="left:12%;width:18%"></span></div>' +
+        '<div class="line" style="width:90%"></div>' +
+        '<div class="line" style="width:94%"><span class="mark" style="left:55%;width:24%"></span></div>' +
+        '<div class="line" style="width:60%"></div>' +
+        '<div class="line" style="width:92%"><span class="mark" style="left:5%;width:14%"></span></div>' +
+        '<div class="line" style="width:75%"></div>' +
+        '</div>';
+    } else {
+      html = '<div class="doc review-doc' + (has() ? ' marked' : '') + '">' +
+        '<div class="line t" style="width:30%"></div>' +
+        '<div class="line del" style="width:88%"></div>' +
+        '<div class="line add" style="width:91%"><span class="mark" style="left:20%;width:22%"></span></div>' +
+        '<div class="line add" style="width:64%"></div>' +
+        '<div class="line" style="width:40%; margin-top:16px"></div>' +
+        '<div class="line del" style="width:70%"><span class="mark" style="left:8%;width:16%"></span></div>' +
+        '<div class="line add" style="width:82%"><span class="mark" style="left:52%;width:20%"></span></div>' +
+        '</div>';
+    }
+    docHost.innerHTML = html;
+  }
+
+  /* ------------------------------------------------ popover */
+
+  function positionPop() {
+    var pillEl = document.getElementById('pill');
+    if (!pillEl) return;
+    var pr = pillEl.getBoundingClientRect();
+    var sr = stage.getBoundingClientRect();
+    pop.style.right = Math.max(8, sr.right - pr.right) + 'px';
+    pop.style.top = (pr.bottom - sr.top + 6) + 'px';
+  }
+
+  function draftKey() { return state.app + ':' + (has() ? 'fb' : 'empty') + ':' + (state.item ? state.item.id : ''); }
+
+  function panelSwap(el) {
+    var h0 = pop.offsetHeight;
+    popInner.replaceChildren(el);
+    pop.style.height = 'auto';
+    var h1 = pop.offsetHeight;
+    pop.style.height = h0 + 'px';
+    void pop.offsetHeight;
+    pop.style.height = h1 + 'px';
+    setTimeout(function () { pop.style.height = 'auto'; }, 200);
+  }
+
+  function openMenu(morph) {
+    state.pop = 'menu'; state.item = null;
+    var panel = document.createElement('div');
+    panel.className = 'pop-panel fade';
+    menuSpec().forEach(function (it) {
+      if (it.div) { var d = document.createElement('div'); d.className = 'mdiv'; panel.appendChild(d); return; }
+      var el = document.createElement('div');
+      el.className = 'mi' + (it.destructive ? ' destructive' : '');
+      el.setAttribute('role', 'menuitem');
+      el.innerHTML =
+        '<span class="lbl">' + it.icon + '<span>' + it.label + '</span>' + (it.gated ? '<span class="gate">capability-gated</span>' : '') + '</span>' +
+        '<span class="sub">' + it.sub + '</span>';
+      el.addEventListener('click', function () {
+        if (it.composer) { openComposer(it); }
+        else if (it.confirm) { closePop(); openConfirm(it.confirm); }
+        else if (it.direct) { closePop(); toast(it.direct[0], it.direct[1], 'var(--success)'); }
+      });
+      panel.appendChild(el);
+    });
+    if (morph) { panelSwap(panel); }
+    else {
+      popInner.replaceChildren(panel);
+      pop.hidden = false; pop.style.height = 'auto';
+      pop.classList.remove('in'); void pop.offsetWidth; pop.classList.add('in');
+      positionPop();
+    }
+    syncCaret();
+  }
+
+  function openComposer(item) {
+    state.pop = 'composer'; state.item = item;
+    var c = item.composer;
+    var panel = document.createElement('div');
+    panel.className = 'pop-panel fade';
+    panel.innerHTML =
+      '<button class="back" id="backBtn">' + ICONS.backc + c.title + '</button>' +
+      '<textarea id="noteTa" rows="2" placeholder="Add a note..." aria-label="Add a note"></textarea>' +
+      '<div class="pop-foot">' +
+        '<span class="pop-hint"><kbd>⌘</kbd><kbd>↩</kbd> · <kbd>Esc</kbd> back</span>' +
+        '<button class="btn ' + c.cls + '" id="noteSend" disabled>' + c.icon + c.action + '</button>' +
+      '</div>';
+    panelSwap(panel);
+    var ta = panel.querySelector('#noteTa');
+    var sendBtn = panel.querySelector('#noteSend');
+    ta.value = state.drafts[draftKey()] || '';
+    sendBtn.disabled = ta.value.trim().length === 0;
+    ta.addEventListener('input', function () {
+      state.drafts[draftKey()] = ta.value;
+      sendBtn.disabled = ta.value.trim().length === 0;
+    });
+    ta.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); openMenu(true); }
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); submitNote(); }
+    });
+    panel.querySelector('#backBtn').addEventListener('click', function () { openMenu(true); });
+    sendBtn.addEventListener('click', submitNote);
+    setTimeout(function () { ta.focus(); }, 60);
+    syncCaret();
+  }
+
+  function submitNote() {
+    var ta = document.getElementById('noteTa');
+    if (!ta || ta.value.trim().length === 0) { if (ta) ta.focus(); return; }
+    var c = state.item.composer;
+    delete state.drafts[draftKey()];
+    closePop();
+    toast(c.toast[0], c.toast[1] + ' · note: “' + truncate(ta.value.trim(), 42) + '”',
+      c.cls === 'btn-primary' ? 'var(--primary)' : 'var(--success)');
+  }
+
+  function closePop() {
+    state.pop = null; state.item = null;
+    pop.hidden = true; pop.style.height = 'auto';
+    syncCaret();
+  }
+
+  function syncCaret() {
+    var c = document.getElementById('caretBtn');
+    if (!c) return;
+    c.classList.toggle('open', !!state.pop);
+    c.setAttribute('aria-expanded', String(!!state.pop));
+  }
+
+  /* ------------------------------------------------ confirm dialog */
+
+  function openConfirm(spec) {
+    state.confirm = spec;
+    dlgHost.innerHTML =
+      '<div class="overlay" id="ovl"><div class="dialog" role="alertdialog" aria-modal="true">' +
+        '<h4>' + spec.title + '</h4><p>' + spec.body + '</p>' +
+        '<div class="actions">' +
+          '<button class="btn btn-muted" id="dlgCancel">Cancel</button>' +
+          '<button class="btn btn-danger-outline" id="dlgGo">' + spec.action + '</button>' +
+        '</div>' +
+      '</div></div>';
+    document.getElementById('dlgCancel').addEventListener('click', cancelConfirm);
+    document.getElementById('ovl').addEventListener('click', function (e) { if (e.target.id === 'ovl') cancelConfirm(); });
+    document.getElementById('dlgGo').addEventListener('click', function () {
+      var t = state.confirm.toast;
+      state.confirm = null; dlgHost.innerHTML = '';
+      toast(t[0], t[1], 'var(--destructive)');
+    });
+  }
+  function cancelConfirm() {
+    state.confirm = null; dlgHost.innerHTML = '';
+    openMenu(); // back to the menu so another decision is one click away
+  }
+
+  /* ------------------------------------------------ toast */
+
+  var toastHost = document.getElementById('toastHost');
+  function toast(t1, t2, color) {
+    var el = document.createElement('div');
+    el.className = 'toast';
+    el.innerHTML = '<div class="t1"><span class="dot" style="background:' + (color || 'var(--primary)') + '"></span>' + t1 + '</div>' +
+      (t2 ? '<div class="t2">' + t2 + '</div>' : '');
+    toastHost.appendChild(el);
+    setTimeout(function () { el.classList.add('out'); }, 2900);
+    setTimeout(function () { el.remove(); }, 3200);
+  }
+  function truncate(s, len) { return s.length > len ? s.slice(0, len - 1) + '…' : s; }
+
+  /* ------------------------------------------------ scenario controls */
+
+  var SCENARIOS = [
+    { app: 'annotate', count: 0, label: 'Annotate · empty' },
+    { app: 'annotate', count: 3, label: 'Annotate · 3 annotations' },
+    { app: 'review', count: 0, label: 'Review · empty' },
+    { app: 'review', count: 3, label: 'Review · 3 annotations' }
+  ];
+  var tabsEl = document.getElementById('tabs');
+  SCENARIOS.forEach(function (s, i) {
+    var b = document.createElement('button');
+    b.className = 'tab'; b.textContent = s.label;
+    b.addEventListener('click', function () { setState(s.app, s.count); });
+    tabsEl.appendChild(b);
+  });
+  function syncTabs() {
+    var kids = tabsEl.children;
+    SCENARIOS.forEach(function (s, i) {
+      kids[i].classList.toggle('active', s.app === state.app && (s.count > 0) === has());
+    });
+    var simLabel = document.getElementById('simLabel');
+    simLabel.textContent = has() ? 'Simulate: remove annotations' : 'Simulate: add 3 annotations';
+  }
+  document.getElementById('simBtn').addEventListener('click', function () {
+    setCount(has() ? 0 : 3);
+  });
+
+  function setState(app, count) {
+    var pillChanges = (app !== state.app) || ((count > 0) !== has());
+    state.app = app; state.count = count;
+    closePop(); dlgHost.innerHTML = ''; state.confirm = null;
+    renderAll(pillChanges);
+  }
+  function setCount(count) {
+    var flips = (count > 0) !== has();
+    state.count = count;
+    closePop(); dlgHost.innerHTML = ''; state.confirm = null;
+    renderAll(flips);
+  }
+  function renderAll(animatePill) {
+    renderHeader(animatePill);
+    renderDoc();
+    syncTabs();
+    syncSidebar();
+  }
+
+  /* ------------------------------------------------ global keys / clicks */
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      if (state.confirm) { cancelConfirm(); return; }
+      if (state.pop === 'composer') { openMenu(true); return; }
+      if (state.pop === 'menu') { closePop(); return; }
+    }
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      if (state.pop === 'composer' || state.confirm) return; // composer handles its own
+      var s = primarySpec();
+      closePop();
+      toast(s.toast[0], s.toast[1], s.cls === 'btn-primary' ? 'var(--primary)' : 'var(--success)');
+    }
+  });
+  document.addEventListener('pointerdown', function (e) {
+    if (state.pop && !pop.contains(e.target) && e.target.id !== 'caretBtn' && !e.target.closest('#caretBtn')) closePop();
+  });
+  window.addEventListener('resize', function () { if (state.pop) positionPop(); });
+
+  /* ------------------------------------------------ sidebar general comment */
+
+  var gcBtn = document.getElementById('gcBtn');
+  var gcBody = document.getElementById('gcBody');
+  var gcItems = [];
+  function syncSidebar() {
+    document.getElementById('sideCount').textContent = String(state.count);
+  }
+  gcBtn.addEventListener('click', function () {
+    if (gcBody.querySelector('.side-composer')) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'side-composer';
+    wrap.innerHTML =
+      '<textarea placeholder="Review-level feedback..." aria-label="General comment"></textarea>' +
+      '<div class="row">' +
+        '<button class="btn btn-muted" id="gcCancel" style="height:24px;font-size:11.5px;padding:0 9px;">Cancel</button>' +
+        '<button class="btn btn-outline" id="gcAdd" style="height:24px;font-size:11.5px;padding:0 9px;" disabled>Add comment</button>' +
+      '</div>';
+    gcBody.appendChild(wrap);
+    var ta = wrap.querySelector('textarea');
+    var add = wrap.querySelector('#gcAdd');
+    ta.addEventListener('input', function () { add.disabled = ta.value.trim().length === 0; });
+    ta.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { e.stopPropagation(); wrap.remove(); }
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); e.stopPropagation(); if (ta.value.trim()) commit(); }
+    });
+    wrap.querySelector('#gcCancel').addEventListener('click', function () { wrap.remove(); });
+    add.addEventListener('click', commit);
+    ta.focus();
+    function commit() {
+      gcItems.push(ta.value.trim());
+      wrap.remove();
+      renderGcItems();
+      setCount(state.count + 1);
+      toast('General comment added', 'Counts as feedback — the header control flipped to Send Feedback · ' + state.count, 'var(--primary)');
+    }
+  });
+  function renderGcItems() {
+    var empty = gcBody.querySelector('.side-empty');
+    if (empty && gcItems.length) empty.remove();
+    gcBody.querySelectorAll('.gc-item').forEach(function (el) { el.remove(); });
+    gcItems.forEach(function (txt) {
+      var el = document.createElement('div');
+      el.className = 'gc-item';
+      el.innerHTML = '<div class="who">you · general</div>' + truncate(txt, 90);
+      gcBody.appendChild(el);
+    });
+  }
+
+  /* ------------------------------------------------ boot */
+  renderAll(false);
+})();
+</script>
+</body>
+</html>

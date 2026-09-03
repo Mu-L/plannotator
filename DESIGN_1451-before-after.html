@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Local vs Remote Mode</title>
+<style>
+  :root { --bg:#101014; --panel:#17171c; --card:#1d1d24; --border:#2c2c36; --fg:#e6e6ec;
+    --muted:#8b8b98; --accent:#7aa2f7; --green:#3fb56b; --amber:#d9a44a; --popover:#22222b; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); padding:40px 24px 100px;
+    font:14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  .wrap { max-width:1000px; margin:0 auto; }
+  h1 { font-size:22px; margin:0 0 6px; letter-spacing:-0.01em; }
+  .sub { color:var(--muted); margin:0 0 34px; max-width:660px; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin:40px 0 12px; }
+  .row { display:flex; gap:28px; flex-wrap:wrap; align-items:flex-start; }
+  .col { flex:1; min-width:300px; }
+  .cap { font-size:12px; color:var(--muted); margin:10px 2px 0; max-width:340px; }
+  .cap strong { color:var(--fg); }
+  .badge { display:inline-block; font-size:10.5px; text-transform:uppercase; letter-spacing:0.07em;
+    font-weight:700; padding:2px 8px; border-radius:99px; margin-left:8px; vertical-align:2px; }
+  .badge.b { background:rgba(217,164,74,0.15); color:var(--amber); }
+  .badge.a { background:rgba(122,162,247,0.16); color:var(--accent); }
+
+  /* picker trigger + dropdown, matching app idiom */
+  .trigger { display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 10px;
+    border-radius:6px; background:#26262f; color:var(--fg); font-size:12.5px; font-weight:500; }
+  .trigger svg { width:11px; height:11px; opacity:0.6; }
+  .menu { margin-top:6px; width:280px; background:var(--popover); border:1px solid var(--border);
+    border-radius:10px; padding:5px; box-shadow:0 14px 40px rgba(0,0,0,0.5); }
+  .opt { position:relative; display:flex; align-items:center; gap:8px; padding:7px 10px;
+    border-radius:6px; font-size:12.5px; cursor:default; }
+  .opt:hover { background:#2a2a35; }
+  .opt .dot { width:5px; height:5px; border-radius:99px; background:transparent; flex:none; }
+  .opt.active { color:var(--fg); }
+  .opt.active .dot { background:var(--accent); }
+  .opt.new { background:rgba(122,162,247,0.10); outline:1px solid rgba(122,162,247,0.35); }
+  .opt.new .tag { margin-left:auto; font-size:9.5px; font-weight:700; letter-spacing:0.06em;
+    color:var(--accent); text-transform:uppercase; }
+  .opt.ghost { opacity:0.35; }
+  .opt.ghost .tag { margin-left:auto; font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; }
+
+  /* tooltip */
+  .tipwrap { position:relative; }
+  .tipwrap:hover .tip { opacity:1; visibility:visible; }
+  .tip { position:absolute; left:calc(100% + 10px); top:-8px; width:250px; z-index:10;
+    background:var(--card); border:1px solid var(--border); border-radius:8px; padding:9px 11px;
+    font-size:11.5px; line-height:1.5; color:var(--muted); box-shadow:0 10px 30px rgba(0,0,0,0.5);
+    opacity:0; visibility:hidden; transition:opacity 0.15s; }
+  .tip b { color:var(--fg); font-weight:600; display:block; margin-bottom:3px; }
+
+  /* diff area mock */
+  .stage { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px; }
+  .filerow { display:flex; align-items:center; gap:8px; font-size:12.5px; font-family:ui-monospace,monospace;
+    padding:6px 8px; border-radius:6px; }
+  .filerow:hover { background:#20202a; }
+  .plus { color:var(--green); } .minus { color:#e06c75; }
+  .fname { color:var(--fg); }
+  .empty { text-align:center; padding:44px 20px; }
+  .empty .ico { font-size:26px; }
+  .empty .t { margin-top:10px; font-size:14px; font-weight:600; }
+  .empty .d { margin-top:4px; font-size:12.5px; color:var(--muted); }
+
+  .callout { margin-top:14px; border-left:3px solid var(--accent); background:rgba(122,162,247,0.07);
+    padding:10px 14px; border-radius:0 8px 8px 0; font-size:12.5px; color:var(--muted); max-width:760px; }
+  .callout strong { color:var(--fg); }
+  .warn { border-left-color:var(--amber); background:rgba(217,164,74,0.07); }
+  code { background:var(--card); border:1px solid var(--border); border-radius:5px; padding:0 5px; font-size:11.5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>PR #1451: "Local vs remote branch" — before and after</h1>
+  <p class="sub">The entire UI footprint is one conditional row in the review header's diff-type picker (plus the same row in Settings and first-run setup). Hover the highlighted row for its real tooltip. Labels below are the exact shipped strings.</p>
+
+  <h2>The diff-type picker <span class="badge b">before</span> <span class="badge a">after</span></h2>
+  <div class="row">
+    <div class="col">
+      <div class="trigger">All changes since main <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></div>
+      <div class="menu">
+        <div class="opt active"><span class="dot"></span>All changes since main</div>
+        <div class="opt"><span class="dot"></span>Uncommitted changes</div>
+        <div class="opt"><span class="dot"></span>Staged changes</div>
+        <div class="opt"><span class="dot"></span>Unstaged changes</div>
+        <div class="opt"><span class="dot"></span>Last commit</div>
+        <div class="opt"><span class="dot"></span>Committed changes (PR view)</div>
+        <div class="opt"><span class="dot"></span>All files (HEAD)</div>
+      </div>
+      <p class="cap"><strong>Before.</strong> Seven ways to slice your changes, but no direct answer to "what's on my machine that isn't on the remote yet?"</p>
+    </div>
+    <div class="col">
+      <div class="trigger">All changes since main <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></div>
+      <div class="menu">
+        <div class="opt active"><span class="dot"></span>All changes since main</div>
+        <div class="opt new tipwrap"><span class="dot"></span>Local vs remote branch<span class="tag">new</span>
+          <div class="tip"><b>Local vs remote branch</b>Your local branch and working tree compared with its remote-tracking branch — committed, uncommitted, and untracked differences from the last fetch.</div>
+        </div>
+        <div class="opt"><span class="dot"></span>Uncommitted changes</div>
+        <div class="opt"><span class="dot"></span>Staged changes</div>
+        <div class="opt"><span class="dot"></span>Unstaged changes</div>
+        <div class="opt"><span class="dot"></span>Last commit</div>
+        <div class="opt"><span class="dot"></span>Committed changes (PR view)</div>
+        <div class="opt"><span class="dot"></span>All files (HEAD)</div>
+      </div>
+      <p class="cap"><strong>After.</strong> One new row, second from the top, with the shipped tooltip (hover it). It only appears when the current branch has a configured upstream (<code>@{upstream}</code>) — no upstream, no row, and the picker looks exactly like "before".</p>
+    </div>
+  </div>
+
+  <h2>What selecting it shows</h2>
+  <div class="row">
+    <div class="col">
+      <div class="stage">
+        <div class="filerow"><span class="fname">src/api/client.ts</span><span class="plus">+42</span><span class="minus">-6</span></div>
+        <div class="filerow"><span class="fname">src/hooks/useSync.ts</span><span class="plus">+18</span><span class="minus">-2</span></div>
+        <div class="filerow"><span class="fname">src/utils/retry.ts <span style="color:var(--green);font-family:inherit;font-size:10px">untracked</span></span><span class="plus">+61</span><span class="minus">-0</span></div>
+        <div class="filerow"><span class="fname">package.json</span><span class="plus">+1</span><span class="minus">-1</span></div>
+      </div>
+      <p class="cap"><strong>With unpushed work:</strong> everything a <code>git push</code> would send — local commits the remote lacks, staged and unstaged edits, and untracked files, in one diff.</p>
+    </div>
+    <div class="col">
+      <div class="stage">
+        <div class="empty">
+          <div class="ico">✓</div>
+          <div class="t">Nothing to review</div>
+          <div class="d">Your local branch matches its remote-tracking branch.</div>
+        </div>
+      </div>
+      <p class="cap"><strong>Fully pushed:</strong> the shipped empty state (exact copy), instead of a confusing blank diff.</p>
+    </div>
+  </div>
+
+  <h2>Behavior notes</h2>
+  <div class="callout"><strong>No network, ever.</strong> The comparison is against your repo's last-fetched picture of the remote. If you fetch mid-review, the existing "Diff out of date · Refresh" banner appears (the staleness fingerprint includes the remote-tracking tip) and one click recomputes.</div>
+  <div class="callout"><strong>Everything else just works.</strong> Staging files from the diff, review snapshots, Ask AI context, and feedback exports all treat it like any other mode; both server runtimes picked it up through the shared modules with zero server edits.</div>
+  <div class="callout warn"><strong>The one sharp edge:</strong> there is no merge-base. If the remote has commits you haven't pulled, those render as reversed hunks — a teammate's additions appear as your deletions. Literally correct for "local vs remote", but different from what a PR view would show.</div>
+</div>
+</body>
+</html>

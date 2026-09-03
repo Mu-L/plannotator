@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Token Hover Cards</title>
+<style>
+  :root { --bg:#101014; --panel:#17171c; --card:#1d1d24; --border:#2c2c36; --fg:#e6e6ec;
+    --muted:#8b8b98; --accent:#7aa2f7; --green:#3fb56b; --amber:#d9a44a; --red:#e06c75;
+    --popover:#22222b; --mono:ui-monospace,"SF Mono",Menlo,monospace; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); padding:40px 24px 120px;
+    font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  .wrap { max-width:1060px; margin:0 auto; }
+  h1 { font-size:23px; margin:0 0 6px; letter-spacing:-0.01em; }
+  .sub { color:var(--muted); margin:0 0 30px; max-width:720px; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin:46px 0 12px; }
+  h3 { font-size:14px; margin:22px 0 8px; }
+  p { max-width:760px; }
+  .note { font-size:13px; color:var(--muted); max-width:760px; }
+  .note strong, p strong { color:var(--fg); }
+  code { background:var(--card); border:1px solid var(--border); border-radius:5px; padding:0 5px; font-size:11.5px; font-family:var(--mono); }
+  table { border-collapse:collapse; width:100%; font-size:12.5px; margin:12px 0; }
+  th, td { text-align:left; padding:8px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  th { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:0.06em; }
+  td.good { color:var(--green); } td.bad { color:var(--red); } td.mid { color:var(--amber); }
+  .callout { margin:14px 0; border-left:3px solid var(--accent); background:rgba(122,162,247,0.07);
+    padding:10px 14px; border-radius:0 8px 8px 0; font-size:12.5px; color:var(--muted); max-width:780px; }
+  .callout.warn { border-left-color:var(--amber); background:rgba(217,164,74,0.07); }
+  .callout.rec { border-left-color:var(--green); background:rgba(63,181,107,0.07); }
+  .callout strong { color:var(--fg); }
+
+  /* tier switch */
+  .tiers { display:flex; gap:6px; background:var(--panel); border:1px solid var(--border);
+    border-radius:9px; padding:5px; width:max-content; position:sticky; top:12px; z-index:40; }
+  .tier { border:none; background:transparent; color:var(--muted); font:12.5px/1 inherit;
+    font-weight:600; padding:8px 14px; border-radius:6px; cursor:pointer; }
+  .tier.on { background:#2a2a35; color:var(--fg); }
+  .tier .t0 { color:var(--accent); }
+
+  /* diff stage */
+  .stage { position:relative; background:var(--panel); border:1px solid var(--border);
+    border-radius:10px; padding:16px 0; margin-top:14px; font-family:var(--mono); font-size:12.5px; overflow:visible; }
+  .ln { display:flex; gap:14px; padding:1.5px 18px; white-space:pre; }
+  .ln .no { width:26px; text-align:right; color:#4a4a58; flex:none; user-select:none; }
+  .ln.add { background:rgba(63,181,107,0.08); }
+  .ln.add .no::after { content:""; }
+  .kw { color:#c678dd; } .fn { color:#61afef; } .ty { color:#e5c07b; } .st { color:#98c379; } .cm { color:#5c6370; }
+  .tok { border-radius:3px; cursor:pointer; padding:0 1px; }
+  .tok:hover, .tok.hot { background:rgba(122,162,247,0.18); box-shadow:0 1px 0 var(--accent); }
+  .hint { text-align:center; color:var(--muted); font-family:inherit; font-size:11.5px; padding-top:10px; font-family:-apple-system,sans-serif; }
+
+  /* the card */
+  .hovercard { position:absolute; z-index:50; width:430px; max-width:calc(100vw - 3rem);
+    background:var(--popover); border:1px solid var(--border); border-radius:11px;
+    box-shadow:0 18px 50px rgba(0,0,0,0.55); padding:0; display:none;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; font-size:12.5px; }
+  .hovercard.open { display:block; animation:pop 0.14s ease-out; }
+  @keyframes pop { from { opacity:0; transform:translateY(4px);} }
+  .hc-head { display:flex; align-items:center; gap:8px; padding:11px 14px 0; }
+  .hc-name { font-family:var(--mono); font-size:14px; font-weight:700; color:#61afef; }
+  .hc-kind { font-size:10px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase;
+    background:#2a2a35; color:var(--muted); border-radius:5px; padding:2px 7px; }
+  .hc-src { margin-left:auto; font-size:9.5px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
+    border-radius:99px; padding:2px 8px; }
+  .hc-src.search { background:rgba(217,164,74,0.15); color:var(--amber); }
+  .hc-src.syntax { background:rgba(63,181,107,0.14); color:var(--green); }
+  .hc-src.index { background:rgba(122,162,247,0.16); color:var(--accent); }
+  .hc-sig { margin:9px 14px 0; background:#17171d; border:1px solid var(--border); border-radius:7px;
+    padding:8px 11px; font-family:var(--mono); font-size:11.5px; color:#98c379; overflow-x:auto; white-space:pre; }
+  .hc-doc { margin:9px 14px 0; color:#c9c9d4; line-height:1.55; }
+  .hc-def { display:flex; align-items:center; gap:6px; margin:10px 14px 0; color:var(--muted); }
+  .hc-def a { color:var(--green); font-family:var(--mono); font-size:11.5px; text-decoration:none; }
+  .hc-def a:hover { text-decoration:underline; }
+  .hc-def .conf { font-size:10px; color:var(--amber); }
+  .hc-refs { border-top:1px solid var(--border); margin-top:11px; padding:9px 14px 11px; }
+  .hc-refs .rh { font-size:11px; color:var(--muted); margin-bottom:6px; display:flex; justify-content:space-between; }
+  .hc-ref { display:flex; align-items:center; gap:7px; padding:2.5px 0; font-family:var(--mono); font-size:11px; }
+  .hc-ref a { color:#8ab4f8; text-decoration:none; }
+  .hc-ref a:hover { text-decoration:underline; }
+  .hc-ref .defmark { margin-left:auto; font-size:9.5px; color:var(--green); font-weight:700; }
+  .hc-ref .cap { color:var(--muted); font-family:inherit; }
+  .hc-stale { margin:0 14px 11px; margin-top:9px; font-size:10.5px; color:var(--amber); }
+  .hc-foot { border-top:1px solid var(--border); padding:7px 14px; display:flex; gap:14px; font-size:10.5px; color:var(--muted); }
+  kbd { background:var(--card); border:1px solid var(--border); border-bottom-width:2px;
+    border-radius:4px; padding:0 4px; font-size:10px; font-family:var(--mono); }
+  .arch { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:4px 18px 14px; margin-top:10px; }
+  .arch pre { font-family:var(--mono); font-size:11.5px; color:var(--muted); line-height:1.7; overflow-x:auto; }
+  .arch pre b { color:var(--fg); font-weight:600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Token hover cards for code review</h1>
+  <p class="sub">Design spec and recommendation. Pierre's token hooks are already in our pinned <code>@pierre/diffs</code> and already wired (Cmd+click → References panel; hover → underline). The question was never <em>can we</em> — it's what fills the card, at what cost. Hover any highlighted token in the mock; switch tiers to see how the same card upgrades.</p>
+
+  <div class="tiers" id="tiers">
+    <button class="tier on" data-tier="search">Tier 0 · Search</button>
+    <button class="tier" data-tier="syntax">Tier 1 · Syntax</button>
+    <button class="tier" data-tier="index">Tier 2 · Index</button>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="ln"><span class="no">17</span><span><span class="cm">// Resolve the caller's role set before gating.</span></span></div>
+    <div class="ln add"><span class="no">18</span><span><span class="kw">const</span> allowed = <span class="tok fn" data-sym="isLocalSymbol">isLocalSymbol</span>(<span class="tok" data-sym="symbol">symbol</span>) ? scope.local : scope.global;</span></div>
+    <div class="ln add"><span class="no">19</span><span><span class="kw">if</span> (!allowed.has(<span class="tok fn" data-sym="normalizeRole">normalizeRole</span>(role))) <span class="kw">return</span> <span class="st">"denied"</span>;</span></div>
+    <div class="ln"><span class="no">20</span><span><span class="kw">return</span> <span class="st">"granted"</span>;</span></div>
+    <div class="hint">hover a highlighted token · card pins while your pointer is inside it · <kbd>⌘</kbd>-click still opens the full References panel</div>
+
+    <div class="hovercard" id="card">
+      <div class="hc-head">
+        <span class="hc-name" id="cName">isLocalSymbol</span>
+        <span class="hc-kind" id="cKind">function</span>
+        <span class="hc-src search" id="cSrc">search</span>
+      </div>
+      <div class="hc-sig" id="cSig"></div>
+      <div class="hc-doc" id="cDoc"></div>
+      <div class="hc-def"><span>→</span><span>Defined at</span><a href="#" id="cDefLoc">src/core/roles.ts:20</a><span>· click to jump</span><span class="conf" id="cConf"></span></div>
+      <div class="hc-refs">
+        <div class="rh"><span id="cRefCount">6 references</span><span id="cRefNote"></span></div>
+        <div id="cRefs"></div>
+      </div>
+      <div class="hc-stale" id="cStale" hidden></div>
+      <div class="hc-foot"><span><kbd>⌘</kbd>click jump</span><span><kbd>⌥</kbd>click references panel</span><span id="cLatency"></span></div>
+    </div>
+  </div>
+
+  <h2>What each tier is</h2>
+  <table>
+    <tr><th></th><th>Tier 0 · Search (ships to everyone)</th><th>Tier 1 · Syntax (opt-in, recommended)</th><th>Tier 2 · Index (opportunistic)</th></tr>
+    <tr><td><strong>Engine</strong></td><td>Existing ripgrep code-nav (<code>/api/code-nav/resolve</code>), extended: kind from the matched def-pattern, multi-line preview, doc-comment scan above the def</td><td>Tree-sitter parse of the <em>definition file only</em>, on demand, riding the CallDiff runtime we already ship (consent-installed, per-language grammar packs)</td><td>A <code>index.scip</code> already present in the repo (generated by the team's CI or a manual run) is loaded lazily and queried</td></tr>
+    <tr><td><strong>Signature</strong></td><td class="mid">Approximate (def line + balanced-paren read-ahead)</td><td class="good">Exact AST node text, read live from the working tree</td><td class="good">Compiler-rendered, frozen at index time</td></tr>
+    <tr><td><strong>Doc paragraph</strong></td><td class="mid">Heuristic comment scan, per-language</td><td class="good">The real doc-comment node</td><td class="good">Authored docstring, markdown</td></tr>
+    <tr><td><strong>Kind badge</strong></td><td class="mid">From which def-regex matched (info we currently discard)</td><td class="good">AST ground truth</td><td class="good">Full SCIP Kind enum</td></tr>
+    <tr><td><strong>Def / refs certainty</strong></td><td class="bad">Heuristic; ranked guesses, honest "likely" label</td><td class="mid">Def verified by AST at the target; refs still text-search</td><td class="good">Role-verified, complete (incl. local-symbol document scoping)</td></tr>
+    <tr><td><strong>Staleness</strong></td><td class="good">None — live search every hover</td><td class="good">None — parses current bytes</td><td class="bad">Real: positions drift (repairable via our own diff's hunk offsets), signatures/docs silently stale until re-index</td></tr>
+    <tr><td><strong>Added cost</strong></td><td class="good">One debounced rg per hover (existing timeout/abort plumbing)</td><td class="mid">One single-file parse per hover, cached by file hash; runtime install is the existing Call Flow consent</td><td class="bad">Whole-project typecheck to generate (minutes, GBs); loading needs a size cap or streaming scan; we never generate it ourselves</td></tr>
+  </table>
+
+  <h2>The determinism answer</h2>
+  <p class="note">The SCIP card's rich fields are <strong>stored, not computed</strong>: the indexer (a real compiler pass) freezes the display name, kind, compiler-rendered signature, and the authored doc comment into the index; "defined at" and the references list are computed by the consumer by scanning occurrences for the Definition role bit. Same tree + same indexer version is stable in practice <em>after canonicalization</em>, but the format doesn't mandate byte-identity (parallel emit order is legal, absolute paths are embedded) and — decisive for us — <strong>the schema carries no content hash, timestamp, or staleness signal of any kind</strong>. Freshness is entirely our problem, which is why Tier 2 is opportunistic, never required.</p>
+
+  <h2>Why not dumb-jump</h2>
+  <p class="note">We already are dumb-jump, specialized better: same ripgrep-plus-def-regex architecture, plus ranking our review context makes possible (same-file, changed-in-this-diff, test-penalty). It adds no capability class. The one asset worth mining is its ~305-rule, 60-language regex corpus to widen our def-pattern coverage beyond TS/JS/Py/Go/Rust.</p>
+
+  <h2>Architecture (seams that already exist)</h2>
+  <div class="arch"><pre>
+<b>client</b>  onTokenEnter/Leave (already wired, currently CSS-only)
+        └─ useTokenHover: 350ms debounce · abort superseded · LRU by (symbol,file,side)
+           └─ compound-token stitching (Shiki splits `a.b` — sibling walk, Pierre's own pattern)
+           └─ anchor: tokenElement.getBoundingClientRect() · hover-into-card keeps it open
+<b>server</b>  POST /api/code-nav/hover   (both runtimes; shared logic in packages/shared)
+        ├─ tier 0: resolve (existing) + kind-of-matched-pattern + doc-scan + preview slice
+        ├─ tier 1: if grammar installed → parse def file → signature/doc/kind nodes (cache: blob hash)
+        └─ tier 2: if index.scip present → symbol tables built once, size-capped
+                   positions hunk-remapped via the review's own diff; suppressed inside edited hunks
+<b>UI</b>      card shows its source chip (Search / Syntax / Index) — never pretends certainty it lacks
+        ⌘click keeps today's behavior (References dock panel); the card is additive
+  </pre></div>
+
+  <h2>Recommendation</h2>
+  <div class="callout rec"><strong>Ship Tier 0 now, build Tier 1 as the innovation, treat Tier 2 as a freebie.</strong> Tier 0 is a UI feature over plumbing that exists — the card, debounce, and three cheap server enrichments. Tier 1 is where we beat the SCIP screenshot at its own game for a local tool: exact signatures and real doc comments with <em>zero index and zero staleness</em>, by parsing one file on demand with the tree-sitter runtime users already consent-install for Call Flow. Tier 2 costs us only a loader: teams that already produce SCIP in CI get the full deterministic experience, with our diff doing the position repair the format itself cannot.</div>
+  <div class="callout warn"><strong>Honesty rule carried from the rest of the product:</strong> the card always wears its source chip, heuristic results keep their "likely" label, capped reference lists say "50+", and Tier 2 data inside edited hunks is suppressed rather than shown wrong. A hover card that guesses confidently is worse than the References panel we have.</div>
+  <p class="note">Sequencing: (1) card UI + Tier 0 enrichments, behind the same <code>canUseLiveWorkspaceActions</code> gate as today's code-nav, absent from the portable guides viewer by construction; (2) Tier 1 extractor + the Call Flow consent seam; (3) the SCIP loader; (4) optionally, mine dumb-jump's regex corpus to widen Tier 0's language coverage. Each step lands in both server runtimes per the two-runtime law.</p>
+</div>
+
+<script>
+  const DATA = {
+    isLocalSymbol: {
+      search: { kind:'function?', sig:'function isLocalSymbol(symbol: string): boolean', sigNote:true,
+        doc:'', conf:'likely definition', refs:6, capped:false, latency:'rg · 38ms',
+        stale:null,
+        list:[['src/core/roles.ts:20',true],['src/core/ScipIndex.ts:4',false],['src/core/ScipIndex.ts:49',false],['src/core/ScipIndex.ts:54',false],['src/core/controller.ts:5',false],['src/core/controller.ts:112',false]] },
+      syntax: { kind:'function', sig:'function isLocalSymbol(symbol: string): boolean',
+        doc:'Symbols starting with `local ` are scoped to the single Document they occur in (per the SCIP grammar). Resolve them only through the ScipDocument they came from.',
+        conf:'', refs:6, capped:false, latency:'tree-sitter · 11ms (cached)',
+        stale:null,
+        list:[['src/core/roles.ts:20',true],['src/core/ScipIndex.ts:4',false],['src/core/ScipIndex.ts:49',false],['src/core/ScipIndex.ts:54',false],['src/core/controller.ts:5',false],['src/core/controller.ts:112',false]] },
+      index: { kind:'function', sig:'function isLocalSymbol(symbol: string): boolean',
+        doc:'Symbols starting with `local ` are scoped to the single Document they occur in (per the SCIP grammar) — the same string in another document is an unrelated symbol. Never merge or look these up across documents; resolve them only through the ScipDocument they came from.',
+        conf:'', refs:6, capped:false, latency:'index · 2ms',
+        stale:'Indexed at 4d2252a2 · roles.ts unchanged since — positions exact',
+        list:[['src/core/roles.ts:20',true],['src/core/ScipIndex.ts:4',false],['src/core/ScipIndex.ts:49',false],['src/core/ScipIndex.ts:54',false],['src/core/controller.ts:5',false],['src/core/controller.ts:112',false]] },
+    },
+    normalizeRole: {
+      search: { kind:'const?', sig:'const normalizeRole = (role: RoleLike) =>', sigNote:true,
+        doc:'', conf:'2 candidates — ranked', refs:14, capped:false, latency:'rg · 41ms', stale:null,
+        list:[['src/core/roles.ts:44',true],['src/auth/middleware.ts:9',false],['src/auth/middleware.ts:31',false],['tests/roles.test.ts:12',false]] },
+      syntax: { kind:'function', sig:'const normalizeRole: (role: RoleLike) => Role',
+        doc:'Lower-cases and trims a role token; unknown roles map to "guest".',
+        conf:'', refs:14, capped:false, latency:'tree-sitter · 9ms', stale:null,
+        list:[['src/core/roles.ts:44',true],['src/auth/middleware.ts:9',false],['src/auth/middleware.ts:31',false],['tests/roles.test.ts:12',false]] },
+      index: { kind:'function', sig:'const normalizeRole: (role: RoleLike) => Role',
+        doc:'Lower-cases and trims a role token; unknown roles map to "guest".',
+        conf:'', refs:14, capped:false, latency:'index · 2ms',
+        stale:'Indexed at 4d2252a2 · roles.ts CHANGED in this review — line remapped via diff; signature may be stale',
+        list:[['src/core/roles.ts:44',true],['src/auth/middleware.ts:9',false],['src/auth/middleware.ts:31',false],['tests/roles.test.ts:12',false]] },
+    },
+    symbol: {
+      search: { kind:'', sig:'', doc:'', conf:'parameter — local to this file', refs:3, capped:false, latency:'rg · 12ms', stale:null,
+        list:[['src/core/roles.ts:18',true],['src/core/roles.ts:19',false],['src/core/roles.ts:20',false]] },
+      syntax: { kind:'parameter', sig:'symbol: string', doc:'', conf:'', refs:3, capped:false, latency:'tree-sitter · 6ms', stale:null,
+        list:[['src/core/roles.ts:18',true],['src/core/roles.ts:19',false],['src/core/roles.ts:20',false]] },
+      index: { kind:'parameter', sig:'symbol: string',
+        doc:'', conf:'', refs:3, capped:false, latency:'index · 1ms',
+        stale:'local symbol — document-scoped by the SCIP grammar; references are complete within this file',
+        list:[['src/core/roles.ts:18',true],['src/core/roles.ts:19',false],['src/core/roles.ts:20',false]] },
+    },
+  };
+  let tier = 'search', hideT = null;
+  const card = document.getElementById('card');
+
+  document.getElementById('tiers').addEventListener('click', (e) => {
+    const b = e.target.closest('.tier'); if (!b) return;
+    tier = b.dataset.tier;
+    document.querySelectorAll('.tier').forEach(t => t.classList.toggle('on', t === b));
+    if (card.classList.contains('open') && card.dataset.sym) show(card.dataset.sym, null);
+  });
+
+  function show(sym, tokEl) {
+    const d = DATA[sym][tier];
+    card.dataset.sym = sym;
+    document.getElementById('cName').textContent = sym;
+    const kindEl = document.getElementById('cKind');
+    kindEl.textContent = d.kind || '?'; kindEl.style.display = d.kind ? '' : 'none';
+    const src = document.getElementById('cSrc');
+    src.textContent = tier; src.className = 'hc-src ' + tier;
+    const sig = document.getElementById('cSig');
+    sig.textContent = d.sig; sig.style.display = d.sig ? '' : 'none';
+    if (d.sigNote && d.sig) sig.textContent = d.sig + '   // matched line';
+    const doc = document.getElementById('cDoc');
+    doc.textContent = d.doc; doc.style.display = d.doc ? '' : 'none';
+    document.getElementById('cDefLoc').textContent = d.list[0][0];
+    document.getElementById('cConf').textContent = d.conf ? '· ' + d.conf : '';
+    document.getElementById('cRefCount').textContent = d.refs + ' references';
+    document.getElementById('cRefNote').textContent = d.capped ? '50+ · capped' : '';
+    document.getElementById('cRefs').innerHTML = d.list.map(([loc, isDef]) =>
+      `<div class="hc-ref"><span style="color:#4a4a58">❯</span><a href="#" onclick="return false">${loc}</a>${isDef ? '<span class="defmark">def</span>' : ''}</div>`
+    ).join('') + (d.refs > d.list.length ? `<div class="hc-ref cap">… ${d.refs - d.list.length} more in the References panel</div>` : '');
+    const stale = document.getElementById('cStale');
+    stale.hidden = !d.stale; stale.textContent = d.stale || '';
+    document.getElementById('cLatency').textContent = d.latency;
+    if (tokEl) {
+      const stageR = document.getElementById('stage').getBoundingClientRect();
+      const r = tokEl.getBoundingClientRect();
+      card.style.left = Math.max(12, Math.min(r.left - stageR.left, stageR.width - 450)) + 'px';
+      card.style.top = (r.bottom - stageR.top + 8) + 'px';
+    }
+    card.classList.add('open');
+  }
+  document.querySelectorAll('.tok').forEach(el => {
+    el.addEventListener('pointerenter', () => { clearTimeout(hideT);
+      document.querySelectorAll('.tok').forEach(t => t.classList.remove('hot'));
+      el.classList.add('hot'); show(el.dataset.sym, el); });
+    el.addEventListener('pointerleave', () => { hideT = setTimeout(() => {
+      card.classList.remove('open'); el.classList.remove('hot'); }, 250); });
+  });
+  card.addEventListener('pointerenter', () => clearTimeout(hideT));
+  card.addEventListener('pointerleave', () => { hideT = setTimeout(() => card.classList.remove('open'), 200); });
+</script>
+</body>
+</html>

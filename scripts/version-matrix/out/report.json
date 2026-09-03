@@ -1,0 +1,1765 @@
+{
+  "summaries": [
+    {
+      "version": "v0.24.2",
+      "initialDiffType": "since-base",
+      "servedDiffType": "since-base",
+      "base": "main",
+      "error": null,
+      "totals": {
+        "adds": 35,
+        "dels": 22,
+        "files": 13
+      },
+      "files": [
+        {
+          "path": "apps/mobile/src/App.tsx",
+          "oldPath": "apps/mobile/src/App.tsx",
+          "newPath": "apps/mobile/src/App.tsx",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 1,
+          "dels": 1
+        },
+        {
+          "path": "apps/mobile/src/screens/Home.tsx",
+          "oldPath": "apps/mobile/src/screens/Home.tsx",
+          "newPath": "apps/mobile/src/screens/Home.tsx",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 7,
+          "dels": 7
+        },
+        {
+          "path": "apps/web/src/index.ts",
+          "oldPath": "apps/web/src/index.ts",
+          "newPath": "apps/web/src/index.ts",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 3,
+          "dels": 1
+        },
+        {
+          "path": "apps/web/src/legacy.ts",
+          "oldPath": "apps/web/src/legacy.ts",
+          "newPath": "apps/web/src/legacy.ts",
+          "status": "D",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": "100644",
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 0,
+          "dels": 6
+        },
+        {
+          "path": "bigassets/metrics-6mb.txt",
+          "oldPath": "bigassets/metrics-6mb.txt",
+          "newPath": "bigassets/metrics-6mb.txt",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 1,
+          "dels": 0
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/Button.tsx",
+          "oldPath": "packages/universal/src/components/etoro/Button.tsx",
+          "newPath": "packages/universal/src/components/spaceship/Button.tsx",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/Button.tsx",
+          "renameTo": "packages/universal/src/components/spaceship/Button.tsx",
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 1,
+          "dels": 1
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/Chart.tsx",
+          "oldPath": "packages/universal/src/components/etoro/Chart.tsx",
+          "newPath": "packages/universal/src/components/spaceship/Chart.tsx",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/Chart.tsx",
+          "renameTo": "packages/universal/src/components/spaceship/Chart.tsx",
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/Panel.tsx",
+          "oldPath": "packages/universal/src/components/etoro/Card.tsx",
+          "newPath": "packages/universal/src/components/spaceship/Panel.tsx",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/Card.tsx",
+          "renameTo": "packages/universal/src/components/spaceship/Panel.tsx",
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 2,
+          "adds": 8,
+          "dels": 2
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/theme.ts",
+          "oldPath": "packages/universal/src/components/etoro/theme.ts",
+          "newPath": "packages/universal/src/components/spaceship/theme.ts",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/theme.ts",
+          "renameTo": "packages/universal/src/components/spaceship/theme.ts",
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "packages/universal/src/index.ts",
+          "oldPath": "packages/universal/src/index.ts",
+          "newPath": "packages/universal/src/index.ts",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 4,
+          "dels": 4
+        },
+        {
+          "path": "tools/build.sh",
+          "oldPath": "tools/build.sh",
+          "newPath": "tools/build.sh",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": "100644",
+          "newMode": "100755",
+          "binary": false,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "apps/web/src/newfeature.ts",
+          "oldPath": "apps/web/src/newfeature.ts",
+          "newPath": "apps/web/src/newfeature.ts",
+          "status": "A",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": "100644",
+          "binary": false,
+          "hunks": 1,
+          "adds": 3,
+          "dels": 0
+        },
+        {
+          "path": "docs/drafts/scratch.md",
+          "oldPath": "docs/drafts/scratch.md",
+          "newPath": "docs/drafts/scratch.md",
+          "status": "A",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": "100644",
+          "binary": false,
+          "hunks": 1,
+          "adds": 7,
+          "dels": 0
+        }
+      ],
+      "renames": [
+        "packages/universal/src/components/etoro/Button.tsx -> packages/universal/src/components/spaceship/Button.tsx",
+        "packages/universal/src/components/etoro/Chart.tsx -> packages/universal/src/components/spaceship/Chart.tsx",
+        "packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx",
+        "packages/universal/src/components/etoro/theme.ts -> packages/universal/src/components/spaceship/theme.ts"
+      ],
+      "emptyHunkFiles": [
+        "packages/universal/src/components/spaceship/Chart.tsx",
+        "packages/universal/src/components/spaceship/theme.ts"
+      ],
+      "modeOnlyFiles": [
+        "tools/build.sh"
+      ],
+      "binaryFiles": [],
+      "perFile": {
+        "apps/mobile/src/App.tsx": "M h1 +1/-1",
+        "apps/mobile/src/screens/Home.tsx": "M h1 +7/-7",
+        "apps/web/src/index.ts": "M h1 +3/-1",
+        "apps/web/src/legacy.ts": "D h1 +0/-6",
+        "bigassets/metrics-6mb.txt": "M h1 +1/-0",
+        "packages/universal/src/components/etoro/Button.tsx -> packages/universal/src/components/spaceship/Button.tsx": "R h1 +1/-1",
+        "packages/universal/src/components/etoro/Chart.tsx -> packages/universal/src/components/spaceship/Chart.tsx": "R h0 +0/-0",
+        "packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx": "R h2 +8/-2",
+        "packages/universal/src/components/etoro/theme.ts -> packages/universal/src/components/spaceship/theme.ts": "R h0 +0/-0",
+        "packages/universal/src/index.ts": "M h1 +4/-4",
+        "tools/build.sh": "M h0 +0/-0",
+        "apps/web/src/newfeature.ts": "A h1 +3/-0",
+        "docs/drafts/scratch.md": "A h1 +7/-0"
+      },
+      "bigFile": "M h1 +1/-0",
+      "renamedFileHandling": "R packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx h2 +8/-2",
+      "deletions": [
+        "apps/web/src/legacy.ts -6"
+      ],
+      "sections": {
+        "committed": [
+          "apps/mobile/src/App.tsx",
+          "packages/universal/src/components/spaceship/Button.tsx",
+          "packages/universal/src/components/spaceship/Chart.tsx",
+          "packages/universal/src/components/spaceship/theme.ts",
+          "packages/universal/src/index.ts"
+        ],
+        "changes": [
+          "apps/mobile/src/screens/Home.tsx",
+          "apps/web/src/index.ts",
+          "apps/web/src/legacy.ts",
+          "bigassets/metrics-6mb.txt",
+          "packages/universal/src/components/spaceship/Panel.tsx",
+          "tools/build.sh"
+        ],
+        "untracked": [
+          "apps/web/src/newfeature.ts",
+          "docs/drafts/scratch.md"
+        ]
+      },
+      "sectionsBase": "main",
+      "commits": "4 commits (base main)",
+      "commitSubjects": [
+        "feat(mobile): spaceship branding in App",
+        "refactor(universal): rename etoro components to spaceship",
+        "docs: expand engineering notes",
+        "chore: scaffold acme monorepo"
+      ],
+      "probeNormal": "200 old=242ch new=292ch",
+      "probeRenamed": "200 old=279ch new=413ch",
+      "probeBig": "200 old=6800000ch new=6800068ch"
+    },
+    {
+      "version": "v0.25.1",
+      "initialDiffType": "since-base",
+      "servedDiffType": "since-base",
+      "base": "main",
+      "error": null,
+      "totals": {
+        "adds": 35,
+        "dels": 22,
+        "files": 13
+      },
+      "files": [
+        {
+          "path": "apps/mobile/src/App.tsx",
+          "oldPath": "apps/mobile/src/App.tsx",
+          "newPath": "apps/mobile/src/App.tsx",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 1,
+          "dels": 1
+        },
+        {
+          "path": "apps/mobile/src/screens/Home.tsx",
+          "oldPath": "apps/mobile/src/screens/Home.tsx",
+          "newPath": "apps/mobile/src/screens/Home.tsx",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 7,
+          "dels": 7
+        },
+        {
+          "path": "apps/web/src/index.ts",
+          "oldPath": "apps/web/src/index.ts",
+          "newPath": "apps/web/src/index.ts",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 3,
+          "dels": 1
+        },
+        {
+          "path": "apps/web/src/legacy.ts",
+          "oldPath": "apps/web/src/legacy.ts",
+          "newPath": "apps/web/src/legacy.ts",
+          "status": "D",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": "100644",
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 0,
+          "dels": 6
+        },
+        {
+          "path": "bigassets/metrics-6mb.txt",
+          "oldPath": "bigassets/metrics-6mb.txt",
+          "newPath": "bigassets/metrics-6mb.txt",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 1,
+          "dels": 0
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/Button.tsx",
+          "oldPath": "packages/universal/src/components/etoro/Button.tsx",
+          "newPath": "packages/universal/src/components/spaceship/Button.tsx",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/Button.tsx",
+          "renameTo": "packages/universal/src/components/spaceship/Button.tsx",
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 1,
+          "dels": 1
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/Chart.tsx",
+          "oldPath": "packages/universal/src/components/etoro/Chart.tsx",
+          "newPath": "packages/universal/src/components/spaceship/Chart.tsx",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/Chart.tsx",
+          "renameTo": "packages/universal/src/components/spaceship/Chart.tsx",
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/Panel.tsx",
+          "oldPath": "packages/universal/src/components/etoro/Card.tsx",
+          "newPath": "packages/universal/src/components/spaceship/Panel.tsx",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/Card.tsx",
+          "renameTo": "packages/universal/src/components/spaceship/Panel.tsx",
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 2,
+          "adds": 8,
+          "dels": 2
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/theme.ts",
+          "oldPath": "packages/universal/src/components/etoro/theme.ts",
+          "newPath": "packages/universal/src/components/spaceship/theme.ts",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/theme.ts",
+          "renameTo": "packages/universal/src/components/spaceship/theme.ts",
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "packages/universal/src/index.ts",
+          "oldPath": "packages/universal/src/index.ts",
+          "newPath": "packages/universal/src/index.ts",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 4,
+          "dels": 4
+        },
+        {
+          "path": "tools/build.sh",
+          "oldPath": "tools/build.sh",
+          "newPath": "tools/build.sh",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": "100644",
+          "newMode": "100755",
+          "binary": false,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "apps/web/src/newfeature.ts",
+          "oldPath": "apps/web/src/newfeature.ts",
+          "newPath": "apps/web/src/newfeature.ts",
+          "status": "A",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": "100644",
+          "binary": false,
+          "hunks": 1,
+          "adds": 3,
+          "dels": 0
+        },
+        {
+          "path": "docs/drafts/scratch.md",
+          "oldPath": "docs/drafts/scratch.md",
+          "newPath": "docs/drafts/scratch.md",
+          "status": "A",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": "100644",
+          "binary": false,
+          "hunks": 1,
+          "adds": 7,
+          "dels": 0
+        }
+      ],
+      "renames": [
+        "packages/universal/src/components/etoro/Button.tsx -> packages/universal/src/components/spaceship/Button.tsx",
+        "packages/universal/src/components/etoro/Chart.tsx -> packages/universal/src/components/spaceship/Chart.tsx",
+        "packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx",
+        "packages/universal/src/components/etoro/theme.ts -> packages/universal/src/components/spaceship/theme.ts"
+      ],
+      "emptyHunkFiles": [
+        "packages/universal/src/components/spaceship/Chart.tsx",
+        "packages/universal/src/components/spaceship/theme.ts"
+      ],
+      "modeOnlyFiles": [
+        "tools/build.sh"
+      ],
+      "binaryFiles": [],
+      "perFile": {
+        "apps/mobile/src/App.tsx": "M h1 +1/-1",
+        "apps/mobile/src/screens/Home.tsx": "M h1 +7/-7",
+        "apps/web/src/index.ts": "M h1 +3/-1",
+        "apps/web/src/legacy.ts": "D h1 +0/-6",
+        "bigassets/metrics-6mb.txt": "M h1 +1/-0",
+        "packages/universal/src/components/etoro/Button.tsx -> packages/universal/src/components/spaceship/Button.tsx": "R h1 +1/-1",
+        "packages/universal/src/components/etoro/Chart.tsx -> packages/universal/src/components/spaceship/Chart.tsx": "R h0 +0/-0",
+        "packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx": "R h2 +8/-2",
+        "packages/universal/src/components/etoro/theme.ts -> packages/universal/src/components/spaceship/theme.ts": "R h0 +0/-0",
+        "packages/universal/src/index.ts": "M h1 +4/-4",
+        "tools/build.sh": "M h0 +0/-0",
+        "apps/web/src/newfeature.ts": "A h1 +3/-0",
+        "docs/drafts/scratch.md": "A h1 +7/-0"
+      },
+      "bigFile": "M h1 +1/-0",
+      "renamedFileHandling": "R packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx h2 +8/-2",
+      "deletions": [
+        "apps/web/src/legacy.ts -6"
+      ],
+      "sections": {
+        "committed": [
+          "apps/mobile/src/App.tsx",
+          "packages/universal/src/components/spaceship/Button.tsx",
+          "packages/universal/src/components/spaceship/Chart.tsx",
+          "packages/universal/src/components/spaceship/theme.ts",
+          "packages/universal/src/index.ts"
+        ],
+        "changes": [
+          "apps/mobile/src/screens/Home.tsx",
+          "apps/web/src/index.ts",
+          "apps/web/src/legacy.ts",
+          "bigassets/metrics-6mb.txt",
+          "packages/universal/src/components/spaceship/Panel.tsx",
+          "tools/build.sh"
+        ],
+        "untracked": [
+          "apps/web/src/newfeature.ts",
+          "docs/drafts/scratch.md"
+        ]
+      },
+      "sectionsBase": "main",
+      "commits": "4 commits (base main)",
+      "commitSubjects": [
+        "feat(mobile): spaceship branding in App",
+        "refactor(universal): rename etoro components to spaceship",
+        "docs: expand engineering notes",
+        "chore: scaffold acme monorepo"
+      ],
+      "probeNormal": "200 old=242ch new=292ch",
+      "probeRenamed": "200 old=279ch new=413ch",
+      "probeBig": "200 keys: oldContent,newContent"
+    },
+    {
+      "version": "v0.26.0",
+      "initialDiffType": "since-base",
+      "servedDiffType": "since-base",
+      "base": "main",
+      "error": null,
+      "totals": {
+        "adds": 26,
+        "dels": 20,
+        "files": 13
+      },
+      "files": [
+        {
+          "path": "apps/mobile/src/App.tsx",
+          "oldPath": "apps/mobile/src/App.tsx",
+          "newPath": "apps/mobile/src/App.tsx",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 1,
+          "dels": 1
+        },
+        {
+          "path": "apps/mobile/src/screens/Home.tsx",
+          "oldPath": "apps/mobile/src/screens/Home.tsx",
+          "newPath": "apps/mobile/src/screens/Home.tsx",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 7,
+          "dels": 7
+        },
+        {
+          "path": "apps/web/src/index.ts",
+          "oldPath": "apps/web/src/index.ts",
+          "newPath": "apps/web/src/index.ts",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 3,
+          "dels": 1
+        },
+        {
+          "path": "apps/web/src/legacy.ts",
+          "oldPath": "apps/web/src/legacy.ts",
+          "newPath": "apps/web/src/legacy.ts",
+          "status": "D",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": "100644",
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 0,
+          "dels": 6
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/Button.tsx",
+          "oldPath": "packages/universal/src/components/etoro/Button.tsx",
+          "newPath": "packages/universal/src/components/spaceship/Button.tsx",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/Button.tsx",
+          "renameTo": "packages/universal/src/components/spaceship/Button.tsx",
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 1,
+          "dels": 1
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/Chart.tsx",
+          "oldPath": "packages/universal/src/components/etoro/Chart.tsx",
+          "newPath": "packages/universal/src/components/spaceship/Chart.tsx",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/Chart.tsx",
+          "renameTo": "packages/universal/src/components/spaceship/Chart.tsx",
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/theme.ts",
+          "oldPath": "packages/universal/src/components/etoro/theme.ts",
+          "newPath": "packages/universal/src/components/spaceship/theme.ts",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/theme.ts",
+          "renameTo": "packages/universal/src/components/spaceship/theme.ts",
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "packages/universal/src/index.ts",
+          "oldPath": "packages/universal/src/index.ts",
+          "newPath": "packages/universal/src/index.ts",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 4,
+          "dels": 4
+        },
+        {
+          "path": "tools/build.sh",
+          "oldPath": "tools/build.sh",
+          "newPath": "tools/build.sh",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": "100644",
+          "newMode": "100755",
+          "binary": false,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "bigassets/metrics-6mb.txt",
+          "oldPath": "bigassets/metrics-6mb.txt",
+          "newPath": "bigassets/metrics-6mb.txt",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": true,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/Panel.tsx",
+          "oldPath": "packages/universal/src/components/etoro/Card.tsx",
+          "newPath": "packages/universal/src/components/spaceship/Panel.tsx",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/Card.tsx",
+          "renameTo": "packages/universal/src/components/spaceship/Panel.tsx",
+          "oldMode": null,
+          "newMode": null,
+          "binary": true,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "apps/web/src/newfeature.ts",
+          "oldPath": "apps/web/src/newfeature.ts",
+          "newPath": "apps/web/src/newfeature.ts",
+          "status": "A",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": "100644",
+          "binary": false,
+          "hunks": 1,
+          "adds": 3,
+          "dels": 0
+        },
+        {
+          "path": "docs/drafts/scratch.md",
+          "oldPath": "docs/drafts/scratch.md",
+          "newPath": "docs/drafts/scratch.md",
+          "status": "A",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": "100644",
+          "binary": false,
+          "hunks": 1,
+          "adds": 7,
+          "dels": 0
+        }
+      ],
+      "renames": [
+        "packages/universal/src/components/etoro/Button.tsx -> packages/universal/src/components/spaceship/Button.tsx",
+        "packages/universal/src/components/etoro/Chart.tsx -> packages/universal/src/components/spaceship/Chart.tsx",
+        "packages/universal/src/components/etoro/theme.ts -> packages/universal/src/components/spaceship/theme.ts",
+        "packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx"
+      ],
+      "emptyHunkFiles": [
+        "packages/universal/src/components/spaceship/Chart.tsx",
+        "packages/universal/src/components/spaceship/theme.ts"
+      ],
+      "modeOnlyFiles": [
+        "tools/build.sh"
+      ],
+      "binaryFiles": [
+        "bigassets/metrics-6mb.txt",
+        "packages/universal/src/components/spaceship/Panel.tsx"
+      ],
+      "perFile": {
+        "apps/mobile/src/App.tsx": "M h1 +1/-1",
+        "apps/mobile/src/screens/Home.tsx": "M h1 +7/-7",
+        "apps/web/src/index.ts": "M h1 +3/-1",
+        "apps/web/src/legacy.ts": "D h1 +0/-6",
+        "packages/universal/src/components/etoro/Button.tsx -> packages/universal/src/components/spaceship/Button.tsx": "R h1 +1/-1",
+        "packages/universal/src/components/etoro/Chart.tsx -> packages/universal/src/components/spaceship/Chart.tsx": "R h0 +0/-0",
+        "packages/universal/src/components/etoro/theme.ts -> packages/universal/src/components/spaceship/theme.ts": "R h0 +0/-0",
+        "packages/universal/src/index.ts": "M h1 +4/-4",
+        "tools/build.sh": "M h0 +0/-0",
+        "bigassets/metrics-6mb.txt": "M(bin) h0 +0/-0",
+        "packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx": "R(bin) h0 +0/-0",
+        "apps/web/src/newfeature.ts": "A h1 +3/-0",
+        "docs/drafts/scratch.md": "A h1 +7/-0"
+      },
+      "bigFile": "binary stub (M)",
+      "renamedFileHandling": "R packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx h0 +0/-0",
+      "deletions": [
+        "apps/web/src/legacy.ts -6"
+      ],
+      "sections": {
+        "committed": [
+          "apps/mobile/src/App.tsx",
+          "packages/universal/src/components/spaceship/Button.tsx",
+          "packages/universal/src/components/spaceship/Chart.tsx",
+          "packages/universal/src/components/spaceship/theme.ts",
+          "packages/universal/src/index.ts"
+        ],
+        "changes": [
+          "apps/mobile/src/screens/Home.tsx",
+          "apps/web/src/index.ts",
+          "apps/web/src/legacy.ts",
+          "bigassets/metrics-6mb.txt",
+          "packages/universal/src/components/spaceship/Panel.tsx",
+          "tools/build.sh"
+        ],
+        "untracked": [
+          "apps/web/src/newfeature.ts",
+          "docs/drafts/scratch.md"
+        ]
+      },
+      "sectionsBase": "main",
+      "commits": "4 commits (base main)",
+      "commitSubjects": [
+        "feat(mobile): spaceship branding in App",
+        "refactor(universal): rename etoro components to spaceship",
+        "docs: expand engineering notes",
+        "chore: scaffold acme monorepo"
+      ],
+      "probeNormal": "200 old=242ch new=292ch",
+      "probeRenamed": "200 keys: oldContent,newContent",
+      "probeBig": "200 keys: oldContent,newContent"
+    },
+    {
+      "version": "v0.26.1",
+      "initialDiffType": "since-base",
+      "servedDiffType": "since-base",
+      "base": "main",
+      "error": null,
+      "totals": {
+        "adds": 26,
+        "dels": 20,
+        "files": 13
+      },
+      "files": [
+        {
+          "path": "apps/mobile/src/App.tsx",
+          "oldPath": "apps/mobile/src/App.tsx",
+          "newPath": "apps/mobile/src/App.tsx",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 1,
+          "dels": 1
+        },
+        {
+          "path": "apps/mobile/src/screens/Home.tsx",
+          "oldPath": "apps/mobile/src/screens/Home.tsx",
+          "newPath": "apps/mobile/src/screens/Home.tsx",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 7,
+          "dels": 7
+        },
+        {
+          "path": "apps/web/src/index.ts",
+          "oldPath": "apps/web/src/index.ts",
+          "newPath": "apps/web/src/index.ts",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 3,
+          "dels": 1
+        },
+        {
+          "path": "apps/web/src/legacy.ts",
+          "oldPath": "apps/web/src/legacy.ts",
+          "newPath": "apps/web/src/legacy.ts",
+          "status": "D",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": "100644",
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 0,
+          "dels": 6
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/Button.tsx",
+          "oldPath": "packages/universal/src/components/etoro/Button.tsx",
+          "newPath": "packages/universal/src/components/spaceship/Button.tsx",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/Button.tsx",
+          "renameTo": "packages/universal/src/components/spaceship/Button.tsx",
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 1,
+          "dels": 1
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/Chart.tsx",
+          "oldPath": "packages/universal/src/components/etoro/Chart.tsx",
+          "newPath": "packages/universal/src/components/spaceship/Chart.tsx",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/Chart.tsx",
+          "renameTo": "packages/universal/src/components/spaceship/Chart.tsx",
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/theme.ts",
+          "oldPath": "packages/universal/src/components/etoro/theme.ts",
+          "newPath": "packages/universal/src/components/spaceship/theme.ts",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/theme.ts",
+          "renameTo": "packages/universal/src/components/spaceship/theme.ts",
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "packages/universal/src/index.ts",
+          "oldPath": "packages/universal/src/index.ts",
+          "newPath": "packages/universal/src/index.ts",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 4,
+          "dels": 4
+        },
+        {
+          "path": "tools/build.sh",
+          "oldPath": "tools/build.sh",
+          "newPath": "tools/build.sh",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": "100644",
+          "newMode": "100755",
+          "binary": false,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "bigassets/metrics-6mb.txt",
+          "oldPath": "bigassets/metrics-6mb.txt",
+          "newPath": "bigassets/metrics-6mb.txt",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": true,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/Panel.tsx",
+          "oldPath": "packages/universal/src/components/etoro/Card.tsx",
+          "newPath": "packages/universal/src/components/spaceship/Panel.tsx",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/Card.tsx",
+          "renameTo": "packages/universal/src/components/spaceship/Panel.tsx",
+          "oldMode": null,
+          "newMode": null,
+          "binary": true,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "apps/web/src/newfeature.ts",
+          "oldPath": "apps/web/src/newfeature.ts",
+          "newPath": "apps/web/src/newfeature.ts",
+          "status": "A",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": "100644",
+          "binary": false,
+          "hunks": 1,
+          "adds": 3,
+          "dels": 0
+        },
+        {
+          "path": "docs/drafts/scratch.md",
+          "oldPath": "docs/drafts/scratch.md",
+          "newPath": "docs/drafts/scratch.md",
+          "status": "A",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": "100644",
+          "binary": false,
+          "hunks": 1,
+          "adds": 7,
+          "dels": 0
+        }
+      ],
+      "renames": [
+        "packages/universal/src/components/etoro/Button.tsx -> packages/universal/src/components/spaceship/Button.tsx",
+        "packages/universal/src/components/etoro/Chart.tsx -> packages/universal/src/components/spaceship/Chart.tsx",
+        "packages/universal/src/components/etoro/theme.ts -> packages/universal/src/components/spaceship/theme.ts",
+        "packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx"
+      ],
+      "emptyHunkFiles": [
+        "packages/universal/src/components/spaceship/Chart.tsx",
+        "packages/universal/src/components/spaceship/theme.ts"
+      ],
+      "modeOnlyFiles": [
+        "tools/build.sh"
+      ],
+      "binaryFiles": [
+        "bigassets/metrics-6mb.txt",
+        "packages/universal/src/components/spaceship/Panel.tsx"
+      ],
+      "perFile": {
+        "apps/mobile/src/App.tsx": "M h1 +1/-1",
+        "apps/mobile/src/screens/Home.tsx": "M h1 +7/-7",
+        "apps/web/src/index.ts": "M h1 +3/-1",
+        "apps/web/src/legacy.ts": "D h1 +0/-6",
+        "packages/universal/src/components/etoro/Button.tsx -> packages/universal/src/components/spaceship/Button.tsx": "R h1 +1/-1",
+        "packages/universal/src/components/etoro/Chart.tsx -> packages/universal/src/components/spaceship/Chart.tsx": "R h0 +0/-0",
+        "packages/universal/src/components/etoro/theme.ts -> packages/universal/src/components/spaceship/theme.ts": "R h0 +0/-0",
+        "packages/universal/src/index.ts": "M h1 +4/-4",
+        "tools/build.sh": "M h0 +0/-0",
+        "bigassets/metrics-6mb.txt": "M(bin) h0 +0/-0",
+        "packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx": "R(bin) h0 +0/-0",
+        "apps/web/src/newfeature.ts": "A h1 +3/-0",
+        "docs/drafts/scratch.md": "A h1 +7/-0"
+      },
+      "bigFile": "binary stub (M)",
+      "renamedFileHandling": "R packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx h0 +0/-0",
+      "deletions": [
+        "apps/web/src/legacy.ts -6"
+      ],
+      "sections": {
+        "committed": [
+          "apps/mobile/src/App.tsx",
+          "packages/universal/src/components/spaceship/Button.tsx",
+          "packages/universal/src/components/spaceship/Chart.tsx",
+          "packages/universal/src/components/spaceship/theme.ts",
+          "packages/universal/src/index.ts"
+        ],
+        "changes": [
+          "apps/mobile/src/screens/Home.tsx",
+          "apps/web/src/index.ts",
+          "apps/web/src/legacy.ts",
+          "bigassets/metrics-6mb.txt",
+          "packages/universal/src/components/spaceship/Panel.tsx",
+          "tools/build.sh"
+        ],
+        "untracked": [
+          "apps/web/src/newfeature.ts",
+          "docs/drafts/scratch.md"
+        ]
+      },
+      "sectionsBase": "main",
+      "commits": "4 commits (base main)",
+      "commitSubjects": [
+        "feat(mobile): spaceship branding in App",
+        "refactor(universal): rename etoro components to spaceship",
+        "docs: expand engineering notes",
+        "chore: scaffold acme monorepo"
+      ],
+      "probeNormal": "200 old=242ch new=292ch",
+      "probeRenamed": "200 keys: oldContent,newContent",
+      "probeBig": "200 keys: oldContent,newContent"
+    },
+    {
+      "version": "dev",
+      "initialDiffType": "since-base",
+      "servedDiffType": "since-base",
+      "base": "main",
+      "error": null,
+      "totals": {
+        "adds": 34,
+        "dels": 22,
+        "files": 13
+      },
+      "files": [
+        {
+          "path": "apps/mobile/src/App.tsx",
+          "oldPath": "apps/mobile/src/App.tsx",
+          "newPath": "apps/mobile/src/App.tsx",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 1,
+          "dels": 1
+        },
+        {
+          "path": "apps/mobile/src/screens/Home.tsx",
+          "oldPath": "apps/mobile/src/screens/Home.tsx",
+          "newPath": "apps/mobile/src/screens/Home.tsx",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 7,
+          "dels": 7
+        },
+        {
+          "path": "apps/web/src/index.ts",
+          "oldPath": "apps/web/src/index.ts",
+          "newPath": "apps/web/src/index.ts",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 3,
+          "dels": 1
+        },
+        {
+          "path": "apps/web/src/legacy.ts",
+          "oldPath": "apps/web/src/legacy.ts",
+          "newPath": "apps/web/src/legacy.ts",
+          "status": "D",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": "100644",
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 0,
+          "dels": 6
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/Button.tsx",
+          "oldPath": "packages/universal/src/components/etoro/Button.tsx",
+          "newPath": "packages/universal/src/components/spaceship/Button.tsx",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/Button.tsx",
+          "renameTo": "packages/universal/src/components/spaceship/Button.tsx",
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 1,
+          "dels": 1
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/Chart.tsx",
+          "oldPath": "packages/universal/src/components/etoro/Chart.tsx",
+          "newPath": "packages/universal/src/components/spaceship/Chart.tsx",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/Chart.tsx",
+          "renameTo": "packages/universal/src/components/spaceship/Chart.tsx",
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/Panel.tsx",
+          "oldPath": "packages/universal/src/components/etoro/Card.tsx",
+          "newPath": "packages/universal/src/components/spaceship/Panel.tsx",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/Card.tsx",
+          "renameTo": "packages/universal/src/components/spaceship/Panel.tsx",
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 2,
+          "adds": 8,
+          "dels": 2
+        },
+        {
+          "path": "packages/universal/src/components/spaceship/theme.ts",
+          "oldPath": "packages/universal/src/components/etoro/theme.ts",
+          "newPath": "packages/universal/src/components/spaceship/theme.ts",
+          "status": "R",
+          "renameFrom": "packages/universal/src/components/etoro/theme.ts",
+          "renameTo": "packages/universal/src/components/spaceship/theme.ts",
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "packages/universal/src/index.ts",
+          "oldPath": "packages/universal/src/index.ts",
+          "newPath": "packages/universal/src/index.ts",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": false,
+          "hunks": 1,
+          "adds": 4,
+          "dels": 4
+        },
+        {
+          "path": "tools/build.sh",
+          "oldPath": "tools/build.sh",
+          "newPath": "tools/build.sh",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": "100644",
+          "newMode": "100755",
+          "binary": false,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "bigassets/metrics-6mb.txt",
+          "oldPath": "bigassets/metrics-6mb.txt",
+          "newPath": "bigassets/metrics-6mb.txt",
+          "status": "M",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": null,
+          "binary": true,
+          "hunks": 0,
+          "adds": 0,
+          "dels": 0
+        },
+        {
+          "path": "apps/web/src/newfeature.ts",
+          "oldPath": "apps/web/src/newfeature.ts",
+          "newPath": "apps/web/src/newfeature.ts",
+          "status": "A",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": "100644",
+          "binary": false,
+          "hunks": 1,
+          "adds": 3,
+          "dels": 0
+        },
+        {
+          "path": "docs/drafts/scratch.md",
+          "oldPath": "docs/drafts/scratch.md",
+          "newPath": "docs/drafts/scratch.md",
+          "status": "A",
+          "renameFrom": null,
+          "renameTo": null,
+          "oldMode": null,
+          "newMode": "100644",
+          "binary": false,
+          "hunks": 1,
+          "adds": 7,
+          "dels": 0
+        }
+      ],
+      "renames": [
+        "packages/universal/src/components/etoro/Button.tsx -> packages/universal/src/components/spaceship/Button.tsx",
+        "packages/universal/src/components/etoro/Chart.tsx -> packages/universal/src/components/spaceship/Chart.tsx",
+        "packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx",
+        "packages/universal/src/components/etoro/theme.ts -> packages/universal/src/components/spaceship/theme.ts"
+      ],
+      "emptyHunkFiles": [
+        "packages/universal/src/components/spaceship/Chart.tsx",
+        "packages/universal/src/components/spaceship/theme.ts"
+      ],
+      "modeOnlyFiles": [
+        "tools/build.sh"
+      ],
+      "binaryFiles": [
+        "bigassets/metrics-6mb.txt"
+      ],
+      "perFile": {
+        "apps/mobile/src/App.tsx": "M h1 +1/-1",
+        "apps/mobile/src/screens/Home.tsx": "M h1 +7/-7",
+        "apps/web/src/index.ts": "M h1 +3/-1",
+        "apps/web/src/legacy.ts": "D h1 +0/-6",
+        "packages/universal/src/components/etoro/Button.tsx -> packages/universal/src/components/spaceship/Button.tsx": "R h1 +1/-1",
+        "packages/universal/src/components/etoro/Chart.tsx -> packages/universal/src/components/spaceship/Chart.tsx": "R h0 +0/-0",
+        "packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx": "R h2 +8/-2",
+        "packages/universal/src/components/etoro/theme.ts -> packages/universal/src/components/spaceship/theme.ts": "R h0 +0/-0",
+        "packages/universal/src/index.ts": "M h1 +4/-4",
+        "tools/build.sh": "M h0 +0/-0",
+        "bigassets/metrics-6mb.txt": "M(bin) h0 +0/-0",
+        "apps/web/src/newfeature.ts": "A h1 +3/-0",
+        "docs/drafts/scratch.md": "A h1 +7/-0"
+      },
+      "bigFile": "binary stub (M)",
+      "renamedFileHandling": "R packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx h2 +8/-2",
+      "deletions": [
+        "apps/web/src/legacy.ts -6"
+      ],
+      "sections": {
+        "committed": [
+          "apps/mobile/src/App.tsx",
+          "packages/universal/src/components/spaceship/Button.tsx",
+          "packages/universal/src/components/spaceship/Chart.tsx",
+          "packages/universal/src/components/spaceship/theme.ts",
+          "packages/universal/src/index.ts"
+        ],
+        "changes": [
+          "apps/mobile/src/screens/Home.tsx",
+          "apps/web/src/index.ts",
+          "apps/web/src/legacy.ts",
+          "bigassets/metrics-6mb.txt",
+          "packages/universal/src/components/spaceship/Panel.tsx",
+          "tools/build.sh"
+        ],
+        "untracked": [
+          "apps/web/src/newfeature.ts",
+          "docs/drafts/scratch.md"
+        ]
+      },
+      "sectionsBase": "main",
+      "commits": "4 commits (base main)",
+      "commitSubjects": [
+        "feat(mobile): spaceship branding in App",
+        "refactor(universal): rename etoro components to spaceship",
+        "docs: expand engineering notes",
+        "chore: scaffold acme monorepo"
+      ],
+      "probeNormal": "200 old=242ch new=292ch",
+      "probeRenamed": "200 old=279ch new=413ch",
+      "probeBig": "200 keys: oldContent,newContent"
+    }
+  ],
+  "truth": {
+    "available": true,
+    "mergeBase": "825e19881d70a197aea8fe52f946f2b653321e60",
+    "numstat": {
+      "apps/mobile/src/App.tsx": {
+        "adds": 1,
+        "dels": 1
+      },
+      "apps/mobile/src/screens/Home.tsx": {
+        "adds": 7,
+        "dels": 7
+      },
+      "apps/web/src/index.ts": {
+        "adds": 3,
+        "dels": 1
+      },
+      "apps/web/src/legacy.ts": {
+        "adds": 0,
+        "dels": 6
+      },
+      "bigassets/metrics-6mb.txt": {
+        "adds": 1,
+        "dels": 0
+      },
+      "packages/universal/src/components/{etoro => spaceship}/Button.tsx": {
+        "adds": 1,
+        "dels": 1
+      },
+      "packages/universal/src/components/{etoro => spaceship}/Chart.tsx": {
+        "adds": 0,
+        "dels": 0
+      },
+      "packages/universal/src/components/{etoro/Card.tsx => spaceship/Panel.tsx}": {
+        "adds": 8,
+        "dels": 2
+      },
+      "packages/universal/src/components/{etoro => spaceship}/theme.ts": {
+        "adds": 0,
+        "dels": 0
+      },
+      "packages/universal/src/index.ts": {
+        "adds": 4,
+        "dels": 4
+      },
+      "tools/build.sh": {
+        "adds": 0,
+        "dels": 0
+      }
+    },
+    "status": {
+      "apps/mobile/src/App.tsx": "M",
+      "apps/mobile/src/screens/Home.tsx": "M",
+      "apps/web/src/index.ts": "M",
+      "apps/web/src/legacy.ts": "D",
+      "bigassets/metrics-6mb.txt": "M",
+      "packages/universal/src/components/etoro/Button.tsx -> packages/universal/src/components/spaceship/Button.tsx": "R067",
+      "packages/universal/src/components/etoro/Chart.tsx -> packages/universal/src/components/spaceship/Chart.tsx": "R100",
+      "packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx": "R050",
+      "packages/universal/src/components/etoro/theme.ts -> packages/universal/src/components/spaceship/theme.ts": "R100",
+      "packages/universal/src/index.ts": "M",
+      "tools/build.sh": "M"
+    },
+    "untracked": [
+      "apps/web/src/newfeature.ts",
+      "docs/drafts/scratch.md"
+    ],
+    "trackedTotals": {
+      "adds": 25,
+      "dels": 22
+    },
+    "sinceBaseTotals": {
+      "adds": 35,
+      "dels": 22,
+      "files": 13
+    }
+  },
+  "rows": [
+    {
+      "label": "initial diffType",
+      "values": [
+        "since-base",
+        "since-base",
+        "since-base",
+        "since-base",
+        "since-base"
+      ],
+      "disagree": false
+    },
+    {
+      "label": "served diffType",
+      "values": [
+        "since-base",
+        "since-base",
+        "since-base",
+        "since-base",
+        "since-base"
+      ],
+      "disagree": false
+    },
+    {
+      "label": "base",
+      "values": [
+        "main",
+        "main",
+        "main",
+        "main",
+        "main"
+      ],
+      "disagree": false
+    },
+    {
+      "label": "diff error",
+      "values": [
+        "none",
+        "none",
+        "none",
+        "none",
+        "none"
+      ],
+      "disagree": false
+    },
+    {
+      "label": "total +",
+      "values": [
+        "35",
+        "35",
+        "26",
+        "26",
+        "34"
+      ],
+      "disagree": true
+    },
+    {
+      "label": "total -",
+      "values": [
+        "22",
+        "22",
+        "20",
+        "20",
+        "22"
+      ],
+      "disagree": true
+    },
+    {
+      "label": "file count",
+      "values": [
+        "13",
+        "13",
+        "13",
+        "13",
+        "13"
+      ],
+      "disagree": false
+    },
+    {
+      "label": "renames in patch",
+      "values": [
+        "packages/universal/src/components/etoro/Button.tsx -> packages/universal/src/components/spaceship/Button.tsx; packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx; packages/universal/src/components/etoro/Chart.tsx -> packages/universal/src/components/spaceship/Chart.tsx; packages/universal/src/components/etoro/theme.ts -> packages/universal/src/components/spaceship/theme.ts",
+        "packages/universal/src/components/etoro/Button.tsx -> packages/universal/src/components/spaceship/Button.tsx; packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx; packages/universal/src/components/etoro/Chart.tsx -> packages/universal/src/components/spaceship/Chart.tsx; packages/universal/src/components/etoro/theme.ts -> packages/universal/src/components/spaceship/theme.ts",
+        "packages/universal/src/components/etoro/Button.tsx -> packages/universal/src/components/spaceship/Button.tsx; packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx; packages/universal/src/components/etoro/Chart.tsx -> packages/universal/src/components/spaceship/Chart.tsx; packages/universal/src/components/etoro/theme.ts -> packages/universal/src/components/spaceship/theme.ts",
+        "packages/universal/src/components/etoro/Button.tsx -> packages/universal/src/components/spaceship/Button.tsx; packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx; packages/universal/src/components/etoro/Chart.tsx -> packages/universal/src/components/spaceship/Chart.tsx; packages/universal/src/components/etoro/theme.ts -> packages/universal/src/components/spaceship/theme.ts",
+        "packages/universal/src/components/etoro/Button.tsx -> packages/universal/src/components/spaceship/Button.tsx; packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx; packages/universal/src/components/etoro/Chart.tsx -> packages/universal/src/components/spaceship/Chart.tsx; packages/universal/src/components/etoro/theme.ts -> packages/universal/src/components/spaceship/theme.ts"
+      ],
+      "disagree": false
+    },
+    {
+      "label": "renamed-file (Panel.tsx) handling",
+      "values": [
+        "R packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx h2 +8/-2",
+        "R packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx h2 +8/-2",
+        "R packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx h0 +0/-0",
+        "R packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx h0 +0/-0",
+        "R packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx h2 +8/-2"
+      ],
+      "disagree": true
+    },
+    {
+      "label": "deletions",
+      "values": [
+        "apps/web/src/legacy.ts -6",
+        "apps/web/src/legacy.ts -6",
+        "apps/web/src/legacy.ts -6",
+        "apps/web/src/legacy.ts -6",
+        "apps/web/src/legacy.ts -6"
+      ],
+      "disagree": false
+    },
+    {
+      "label": "empty-hunk files",
+      "values": [
+        "packages/universal/src/components/spaceship/Chart.tsx; packages/universal/src/components/spaceship/theme.ts",
+        "packages/universal/src/components/spaceship/Chart.tsx; packages/universal/src/components/spaceship/theme.ts",
+        "packages/universal/src/components/spaceship/Chart.tsx; packages/universal/src/components/spaceship/theme.ts",
+        "packages/universal/src/components/spaceship/Chart.tsx; packages/universal/src/components/spaceship/theme.ts",
+        "packages/universal/src/components/spaceship/Chart.tsx; packages/universal/src/components/spaceship/theme.ts"
+      ],
+      "disagree": false
+    },
+    {
+      "label": "mode-only files",
+      "values": [
+        "tools/build.sh",
+        "tools/build.sh",
+        "tools/build.sh",
+        "tools/build.sh",
+        "tools/build.sh"
+      ],
+      "disagree": false
+    },
+    {
+      "label": "binary-stub files",
+      "values": [
+        "none",
+        "none",
+        "bigassets/metrics-6mb.txt; packages/universal/src/components/spaceship/Panel.tsx",
+        "bigassets/metrics-6mb.txt; packages/universal/src/components/spaceship/Panel.tsx",
+        "bigassets/metrics-6mb.txt"
+      ],
+      "disagree": true
+    },
+    {
+      "label": "big-file representation",
+      "values": [
+        "M h1 +1/-0",
+        "M h1 +1/-0",
+        "binary stub (M)",
+        "binary stub (M)",
+        "binary stub (M)"
+      ],
+      "disagree": true
+    },
+    {
+      "label": "sections partition",
+      "values": [
+        "committed:5 changes:6 untracked:2",
+        "committed:5 changes:6 untracked:2",
+        "committed:5 changes:6 untracked:2",
+        "committed:5 changes:6 untracked:2",
+        "committed:5 changes:6 untracked:2"
+      ],
+      "disagree": false
+    },
+    {
+      "label": "sections base",
+      "values": [
+        "main",
+        "main",
+        "main",
+        "main",
+        "main"
+      ],
+      "disagree": false
+    },
+    {
+      "label": "/api/commits",
+      "values": [
+        "4 commits (base main)",
+        "4 commits (base main)",
+        "4 commits (base main)",
+        "4 commits (base main)",
+        "4 commits (base main)"
+      ],
+      "disagree": false
+    },
+    {
+      "label": "probe normal (index.ts)",
+      "values": [
+        "200 old=242ch new=292ch",
+        "200 old=242ch new=292ch",
+        "200 old=242ch new=292ch",
+        "200 old=242ch new=292ch",
+        "200 old=242ch new=292ch"
+      ],
+      "disagree": false
+    },
+    {
+      "label": "probe renamed (Panel.tsx oldPath=Card.tsx)",
+      "values": [
+        "200 old=279ch new=413ch",
+        "200 old=279ch new=413ch",
+        "200 keys: oldContent,newContent",
+        "200 keys: oldContent,newContent",
+        "200 old=279ch new=413ch"
+      ],
+      "disagree": true
+    },
+    {
+      "label": "probe big (6MB)",
+      "values": [
+        "200 old=6800000ch new=6800068ch",
+        "200 keys: oldContent,newContent",
+        "200 keys: oldContent,newContent",
+        "200 keys: oldContent,newContent",
+        "200 keys: oldContent,newContent"
+      ],
+      "disagree": true
+    }
+  ],
+  "fileRows": [
+    {
+      "key": "apps/mobile/src/App.tsx",
+      "values": [
+        "M h1 +1/-1",
+        "M h1 +1/-1",
+        "M h1 +1/-1",
+        "M h1 +1/-1",
+        "M h1 +1/-1"
+      ],
+      "disagree": false
+    },
+    {
+      "key": "apps/mobile/src/screens/Home.tsx",
+      "values": [
+        "M h1 +7/-7",
+        "M h1 +7/-7",
+        "M h1 +7/-7",
+        "M h1 +7/-7",
+        "M h1 +7/-7"
+      ],
+      "disagree": false
+    },
+    {
+      "key": "apps/web/src/index.ts",
+      "values": [
+        "M h1 +3/-1",
+        "M h1 +3/-1",
+        "M h1 +3/-1",
+        "M h1 +3/-1",
+        "M h1 +3/-1"
+      ],
+      "disagree": false
+    },
+    {
+      "key": "apps/web/src/legacy.ts",
+      "values": [
+        "D h1 +0/-6",
+        "D h1 +0/-6",
+        "D h1 +0/-6",
+        "D h1 +0/-6",
+        "D h1 +0/-6"
+      ],
+      "disagree": false
+    },
+    {
+      "key": "apps/web/src/newfeature.ts",
+      "values": [
+        "A h1 +3/-0",
+        "A h1 +3/-0",
+        "A h1 +3/-0",
+        "A h1 +3/-0",
+        "A h1 +3/-0"
+      ],
+      "disagree": false
+    },
+    {
+      "key": "bigassets/metrics-6mb.txt",
+      "values": [
+        "M h1 +1/-0",
+        "M h1 +1/-0",
+        "M(bin) h0 +0/-0",
+        "M(bin) h0 +0/-0",
+        "M(bin) h0 +0/-0"
+      ],
+      "disagree": true
+    },
+    {
+      "key": "docs/drafts/scratch.md",
+      "values": [
+        "A h1 +7/-0",
+        "A h1 +7/-0",
+        "A h1 +7/-0",
+        "A h1 +7/-0",
+        "A h1 +7/-0"
+      ],
+      "disagree": false
+    },
+    {
+      "key": "packages/universal/src/components/etoro/Button.tsx -> packages/universal/src/components/spaceship/Button.tsx",
+      "values": [
+        "R h1 +1/-1",
+        "R h1 +1/-1",
+        "R h1 +1/-1",
+        "R h1 +1/-1",
+        "R h1 +1/-1"
+      ],
+      "disagree": false
+    },
+    {
+      "key": "packages/universal/src/components/etoro/Card.tsx -> packages/universal/src/components/spaceship/Panel.tsx",
+      "values": [
+        "R h2 +8/-2",
+        "R h2 +8/-2",
+        "R(bin) h0 +0/-0",
+        "R(bin) h0 +0/-0",
+        "R h2 +8/-2"
+      ],
+      "disagree": true
+    },
+    {
+      "key": "packages/universal/src/components/etoro/Chart.tsx -> packages/universal/src/components/spaceship/Chart.tsx",
+      "values": [
+        "R h0 +0/-0",
+        "R h0 +0/-0",
+        "R h0 +0/-0",
+        "R h0 +0/-0",
+        "R h0 +0/-0"
+      ],
+      "disagree": false
+    },
+    {
+      "key": "packages/universal/src/components/etoro/theme.ts -> packages/universal/src/components/spaceship/theme.ts",
+      "values": [
+        "R h0 +0/-0",
+        "R h0 +0/-0",
+        "R h0 +0/-0",
+        "R h0 +0/-0",
+        "R h0 +0/-0"
+      ],
+      "disagree": false
+    },
+    {
+      "key": "packages/universal/src/index.ts",
+      "values": [
+        "M h1 +4/-4",
+        "M h1 +4/-4",
+        "M h1 +4/-4",
+        "M h1 +4/-4",
+        "M h1 +4/-4"
+      ],
+      "disagree": false
+    },
+    {
+      "key": "tools/build.sh",
+      "values": [
+        "M h0 +0/-0",
+        "M h0 +0/-0",
+        "M h0 +0/-0",
+        "M h0 +0/-0",
+        "M h0 +0/-0"
+      ],
+      "disagree": false
+    }
+  ]
+}

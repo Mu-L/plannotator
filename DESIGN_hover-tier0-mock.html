@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tier 0 Hover Card Mock</title>
+<style>
+  :root { --bg:#101014; --panel:#17171c; --card:#1d1d24; --border:#2c2c36; --fg:#e6e6ec;
+    --muted:#8b8b98; --accent:#7aa2f7; --green:#3fb56b; --amber:#d9a44a; --red:#e06c75;
+    --popover:#22222b; --mono:ui-monospace,"SF Mono",Menlo,monospace; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); padding:40px 24px 120px;
+    font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  .wrap { max-width:1080px; margin:0 auto; }
+  h1 { font-size:22px; margin:0 0 6px; }
+  .sub { color:var(--muted); margin:0 0 26px; max-width:740px; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin:44px 0 12px; }
+  p, .note { max-width:780px; }
+  .note { font-size:13px; color:var(--muted); }
+  .note strong { color:var(--fg); }
+  code { background:var(--card); border:1px solid var(--border); border-radius:5px; padding:0 5px; font-size:11.5px; font-family:var(--mono); }
+  table { border-collapse:collapse; width:100%; font-size:12.5px; margin:12px 0; }
+  th,td { text-align:left; padding:8px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  th { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:0.06em; }
+  td.ok { color:var(--green); } td.warn { color:var(--amber); }
+  .callout { margin:14px 0; border-left:3px solid var(--accent); background:rgba(122,162,247,0.07);
+    padding:10px 14px; border-radius:0 8px 8px 0; font-size:12.5px; color:var(--muted); max-width:800px; }
+  .callout.warn { border-left-color:var(--amber); background:rgba(217,164,74,0.07); }
+  .callout strong { color:var(--fg); }
+  kbd { background:var(--card); border:1px solid var(--border); border-bottom-width:2px;
+    border-radius:4px; padding:0 4px; font-size:10px; font-family:var(--mono); }
+
+  .stagewrap { display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap; }
+  .stage { position:relative; flex:1; min-width:520px; background:var(--panel); border:1px solid var(--border);
+    border-radius:10px; padding:14px 0 10px; font-family:var(--mono); font-size:12.5px;
+    max-height:340px; overflow-y:auto; }
+  .fhead { padding:0 16px 8px; color:var(--muted); font-size:11px; border-bottom:1px solid var(--border); margin-bottom:6px; }
+  .ln { display:flex; gap:12px; padding:1.5px 16px; white-space:pre; }
+  .ln .no { width:26px; text-align:right; color:#4a4a58; flex:none; user-select:none; }
+  .ln.add { background:rgba(63,181,107,0.08); }
+  .ln.del { background:rgba(224,108,117,0.07); }
+  .kw{color:#c678dd}.fn{color:#61afef}.ty{color:#e5c07b}.st{color:#98c379}.cm{color:#5c6370}
+  .tok { border-radius:3px; cursor:default; padding:0 1px; }
+  .tok:hover { background:rgba(122,162,247,0.18); box-shadow:0 1px 0 var(--accent); }
+  .filler { color:#3c3c48; }
+
+  /* HUD */
+  .hud { flex:0 0 260px; background:var(--panel); border:1px solid var(--border); border-radius:10px;
+    padding:14px 16px; font-size:12px; position:sticky; top:16px; }
+  .hud h3 { margin:0 0 10px; font-size:11px; text-transform:uppercase; letter-spacing:0.07em; color:var(--muted); }
+  .hudrow { display:flex; justify-content:space-between; padding:3px 0; color:var(--muted); }
+  .hudrow b { color:var(--fg); font-weight:600; font-family:var(--mono); font-size:11.5px; }
+  .phase { margin-top:8px; height:6px; border-radius:99px; background:#26262f; overflow:hidden; }
+  .phase i { display:block; height:100%; width:0%; background:var(--accent); transition:width 0.05s linear; }
+  .phase.fetch i { background:var(--amber); }
+  .statelbl { margin-top:8px; font-size:11px; }
+  .statelbl.idle { color:var(--muted); } .statelbl.dwell { color:var(--accent); }
+  .statelbl.fetch { color:var(--amber); } .statelbl.open { color:var(--green); }
+  .statelbl.none { color:var(--red); }
+  .hudlog { margin-top:10px; border-top:1px solid var(--border); padding-top:8px; font-family:var(--mono);
+    font-size:10px; color:var(--muted); max-height:120px; overflow-y:auto; }
+
+  /* card — faithful to the Tier 0 spec §4.3 */
+  .hovercard { position:fixed; z-index:60; width:400px; max-width:calc(100vw - 2rem);
+    background:var(--popover); border:1px solid var(--border); border-radius:11px;
+    box-shadow:0 18px 50px rgba(0,0,0,0.55); display:none;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; font-size:12.5px; }
+  .hovercard.open { display:block; animation:pop 0.12s ease-out; }
+  @keyframes pop { from { opacity:0; transform:translateY(4px);} }
+  .hc-head { display:flex; align-items:center; gap:8px; padding:11px 14px 0; }
+  .hc-name { font-family:var(--mono); font-size:14px; font-weight:700; color:#61afef; }
+  .hc-kind { font-size:10px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase;
+    background:#2a2a35; color:var(--muted); border-radius:5px; padding:2px 7px; }
+  .hc-src { margin-left:auto; font-size:9.5px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
+    border-radius:99px; padding:2px 8px; background:rgba(217,164,74,0.15); color:var(--amber); }
+  .hc-sig { margin:9px 14px 0; background:#17171d; border:1px solid var(--border); border-radius:7px;
+    padding:8px 11px; font-family:var(--mono); font-size:11.5px; color:#98c379; overflow-x:auto; white-space:pre; }
+  .hc-sig .approx { color:#5c6370; }
+  .hc-doc { margin:9px 14px 0; color:#c9c9d4; line-height:1.55; }
+  .hc-def { display:flex; align-items:center; gap:6px; margin:10px 14px 0; color:var(--muted); flex-wrap:wrap; }
+  .hc-def a { color:var(--green); font-family:var(--mono); font-size:11.5px; text-decoration:none; }
+  .hc-def .conf { font-size:10px; color:var(--amber); }
+  .hc-refs { border-top:1px solid var(--border); margin-top:11px; padding:9px 14px 11px; }
+  .hc-refs .rh { font-size:11px; color:var(--muted); margin-bottom:6px; }
+  .hc-ref { display:flex; gap:7px; padding:2.5px 0; font-family:var(--mono); font-size:11px; }
+  .hc-ref a { color:#8ab4f8; text-decoration:none; }
+  .hc-ref .more { color:var(--muted); font-family:inherit; }
+  .hc-foot { border-top:1px solid var(--border); padding:7px 14px; display:flex; gap:14px; font-size:10.5px; color:var(--muted); }
+  .hc-foot .lat { margin-left:auto; font-family:var(--mono); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Tier 0 hover card — factual simulation</h1>
+  <p class="sub">Every number here is the scoped spec's real constant, and every behavior is the one that ships — including the deliberate absences. Hover tokens in the diff; the HUD shows the invisible pipeline. Try: hover and hold, re-hover the same token (cache), hover <code>gateway</code> (below-threshold → nothing), sweep fast across many tokens (zero requests), and scroll the pane with a card open.</p>
+
+  <div class="stagewrap">
+    <div class="stage" id="pane">
+      <div class="fhead">src/pay.js · working tree vs origin/main</div>
+      <div class="ln del"><span class="no">4</span><span><span class="kw">export function</span> <span class="tok fn" data-sym="charge">charge</span>(amount) {</span></div>
+      <div class="ln add"><span class="no">4</span><span><span class="kw">export function</span> <span class="tok fn" data-sym="charge">charge</span>(amount, key) {</span></div>
+      <div class="ln add"><span class="no">5</span><span>  <span class="kw">return</span> <span class="tok fn" data-sym="withRetry">withRetry</span>(() =&gt; <span class="tok" data-sym="gateway">gateway</span>.post(<span class="st">"/charge"</span>, { amount, key }), <span class="tok" data-sym="MAX_ATTEMPTS">MAX_ATTEMPTS</span>);</span></div>
+      <div class="ln"><span class="no">6</span><span>}</span></div>
+      <div class="ln add"><span class="no">8</span><span><span class="kw">function</span> <span class="tok fn" data-sym="withRetry">withRetry</span>(fn, n) {</span></div>
+      <div class="ln add"><span class="no">9</span><span>  <span class="kw">return</span> <span class="tok fn" data-sym="backoffDelay">backoffDelay</span>(fn, n); <span class="cm">// TODO jitter</span></span></div>
+      <div class="ln add"><span class="no">10</span><span>}</span></div>
+      <div class="filler">
+        <div class="ln"><span class="no">…</span><span>// scroll this pane with a card open — the card closes and the</span></div>
+        <div class="ln"><span class="no">…</span><span>// pending fetch aborts: the anchor rect is stale once the pane moves.</span></div>
+        <div class="ln"><span class="no"> </span><span> </span></div>
+        <div class="ln"><span class="no"> </span><span> </span></div>
+        <div class="ln"><span class="no"> </span><span> </span></div>
+        <div class="ln"><span class="no"> </span><span> </span></div>
+        <div class="ln"><span class="no"> </span><span> </span></div>
+        <div class="ln"><span class="no"> </span><span> </span></div>
+      </div>
+    </div>
+
+    <div class="hud">
+      <h3>Pipeline (spec constants)</h3>
+      <div class="hudrow"><span>Dwell debounce</span><b>350 ms</b></div>
+      <div class="hudrow"><span>Hover rg timeout</span><b>3000 ms</b></div>
+      <div class="hudrow"><span>Leave grace</span><b>250 ms</b></div>
+      <div class="hudrow"><span>LRU cache</span><b>30 · by symbol|file|side</b></div>
+      <div class="hudrow"><span>In-flight</span><b>1 (abort-superseded)</b></div>
+      <div class="phase" id="phaseBar"><i id="phaseFill"></i></div>
+      <div class="statelbl idle" id="stateLbl">idle — no request exists</div>
+      <div class="hudlog" id="hudlog"></div>
+    </div>
+  </div>
+
+  <div class="hovercard" id="card">
+    <div class="hc-head"><span class="hc-name" id="cName"></span><span class="hc-kind" id="cKind"></span></div>
+    <div class="hc-sig" id="cSig"></div>
+    <div class="hc-doc" id="cDoc"></div>
+    <div class="hc-def"><span>→</span><span>Defined at</span><a href="#" onclick="return false" id="cDefLoc"></a></div><div class="hc-def" id="cAlt" hidden><span style="opacity:0">→</span><span>or possibly</span><a href="#" onclick="return false" id="cAltLoc"></a></div>
+    <div class="hc-refs"><div class="rh" id="cRefCount"></div><div id="cRefs"></div></div>
+    <div class="hc-foot"><span>Click a location to jump. <kbd>⌘</kbd>click a token for the full References panel.</span></div>
+  </div>
+
+  <h2>The waiting model — what you feel, honestly</h2>
+  <table>
+    <tr><th>Moment</th><th>What happens</th><th>Why it ships this way</th></tr>
+    <tr><td>0–350 ms on a token</td><td><strong>Nothing.</strong> No request exists yet.</td><td>Dwell gating is the spawn control: sweeping across 50 tokens costs zero ripgrep processes. Below-dwell hovers are free by construction.</td></tr>
+    <tr><td>350 ms → answer</td><td><strong>Nothing visible.</strong> No spinner, no skeleton. One rg runs (typically 30–120 ms warm; the mock simulates a 900 ms cold first hit on <code>backoffDelay</code>).</td><td>A skeleton would flash on the common fast path and train users to wait on the slow one. The card appears fully formed or not at all; the footer prints the honest elapsed time.</td></tr>
+    <tr><td>Re-hover (cached)</td><td>Card at dwell-end with <code>cache · 0ms</code> — no request.</td><td>30-entry LRU keyed <code>symbol|file|side</code>, cleared whenever the diff snapshot changes so a refresh can never serve stale positions.</td></tr>
+    <tr><td>Weak answer</td><td><strong>Nothing, silently</strong> — renders only with a definition or ≥ 2 references. Timeouts (3 s), fetch failures, aborts, missing rg, PR-mode-without-checkout: all render nothing, never a toast.</td><td>A hover is an idle gesture; it must never nag. Cmd+click keeps its explicit error toast — that is a deliberate action.</td></tr>
+    <tr><td>Pointer leaves</td><td>250 ms grace; entering the card cancels the close, so the reference links are reachable.</td><td>The design mock's own scheme, carried verbatim.</td></tr>
+    <tr><td>Scroll / wheel</td><td>Card closes, pending fetch aborts instantly.</td><td>The anchor rect is stale the moment the pane moves.</td></tr>
+  </table>
+
+  <h2>Loading strategy — why on-demand, not optimistic</h2>
+  <div class="callout"><strong>No preloading, and that is a decision, not a shortcut.</strong> Every resolve is a real <code>ripgrep</code> process spawn against the working tree. Optimistically warming visible tokens would spawn dozens of subprocesses per scroll for cards nobody opens — the exact pathology the opencode-serve leak taught this codebase to never build. Instead: dwell gating spawns at most one rg per 350 ms of genuine attention, single-in-flight with abort, an identifier/keyword stoplist filters non-symbols before any request, and the LRU makes repeat attention free. One accepted residual, bounded and documented: the server cannot kill an rg the client aborted — worst case one orphaned process per dwell, running to its 3 s cap; <code>single-flight</code> coalescing is the named escalation if real use ever shows pile-ups, deliberately not built now.</div>
+
+  <h2>Regression safety — the systematic answer</h2>
+  <table>
+    <tr><th>Core feature</th><th>Interaction</th><th>Why it cannot regress</th></tr>
+    <tr><td>Cmd+click References panel</td><td class="ok">Byte-identical</td><td>New endpoint (<code>/api/code-nav/hover</code>), not a mode flag on <code>/resolve</code> — the click contract is untouched by construction. Card links route into the same existing panel flow. Alt+click added as an alias only.</td></tr>
+    <tr><td>Annotation selection / drag in the diff</td><td class="ok">Untouched</td><td>The hover pipeline listens on <code>onTokenEnter/Leave</code> — events already firing today for the CSS underline. No pointerdown, no click, no selection interception; the card is pointer-transparent until entered.</td></tr>
+    <tr><td>Escape ladder / decision control</td><td class="ok">Untouched</td><td>The card closes on leave/scroll, not Escape — it registers no key listeners, so the stack's one-Escape-one-rung contract is never in play.</td></tr>
+    <tr><td>Diff render performance</td><td class="ok">Zero added weight</td><td>Token spans + <code>data-char</code> already exist in every review (<code>useTokenTransformer</code> is on globally). Tier 0 adds no render-path cost; all cost is post-dwell.</td></tr>
+    <tr><td>guides.show / portable exports</td><td class="ok">Absent by construction</td><td>Wiring activates only when the App passes the handler props; the read-only chain passes none (verified zero matches in guides code). Portable bundle unchanged.</td></tr>
+    <tr><td>Read-only / GitButler committed / piped-patch views</td><td class="ok">No card</td><td>Same <code>canUseLiveWorkspaceActions</code> conditional-prop gate as today's code-nav, plus server guards copied verbatim from <code>/resolve</code>.</td></tr>
+    <tr><td>Two-runtime law</td><td class="ok">Held</td><td>All decision logic lives in the already-vendored shared module; both servers add the same endpoint; dual-runtime shape test in the plan.</td></tr>
+    <tr><td>Settings off</td><td class="ok">Zero footprint</td><td>No handler props → no listeners, no hook, no card in the tree. Cookie-only setting; no server config surface touched.</td></tr>
+    <tr><td>Pierre upgrade risk</td><td class="warn">Accepted, degrades safely</td><td>The <code>onToken*</code> surface is experimental in our pinned 1.3.2; if a future upgrade breaks the events, hover degrades to nothing and Cmd+click re-verification already covers the seam.</td></tr>
+  </table>
+  <p class="note"><strong>Bottom line:</strong> the feature is additive at every layer — a new endpoint, new optional props, listeners on events that already fire — and every failure mode resolves to "no card", never to broken annotation, broken navigation, or a nagging error.</p>
+</div>
+
+<script>
+  const SPEC = { dwell:350, grace:250, timeout:3000 };
+  const DATA = {
+    charge:      { kind:'function', latency:46, sig:'export function charge(amount, key) {', doc:null,
+      def:'src/pay.js:4', refs:5,
+      list:['src/pay.js:4','src/checkout.js:12','src/checkout.js:31','tests/pay.test.js:8'] },
+    withRetry:   { kind:'function', latency:38, sig:'function withRetry(fn, n) {', doc:null,
+      def:'src/pay.js:8', refs:2, list:['src/pay.js:8','src/pay.js:5'] },
+    MAX_ATTEMPTS:{ kind:'const', latency:41, sig:'const MAX_ATTEMPTS = 3; // matched line', approx:true,
+      doc:'Upper bound for gateway retries; raising this without idempotency keys risks double charges.',
+      def:'src/config.js:2', refs:4,
+      list:['src/config.js:2','src/pay.js:5','src/queue.js:19','tests/pay.test.js:22'] },
+    backoffDelay:{ kind:'function', latency:900, cold:true, sig:'function backoffDelay(fn, n) {', doc:null,
+      def:'src/retry/backoff.js:14', alt:'src/legacy/retry.js:31', refs:3,
+      list:['src/retry/backoff.js:14','src/pay.js:9','src/queue.js:44'] },
+    gateway:     { none:true, latency:33 }, // 1 ref, below render threshold -> nothing
+  };
+  const cache = new Set();
+  const card = document.getElementById('card');
+  const lbl = document.getElementById('stateLbl');
+  const fill = document.getElementById('phaseFill');
+  const bar = document.getElementById('phaseBar');
+  const hudlog = document.getElementById('hudlog');
+  let dwellT=null, fetchT=null, graceT=null, animT=null, hoveredEl=null;
+
+  function log(m){ hudlog.innerHTML = `<div>${m}</div>` + hudlog.innerHTML; }
+  function setState(cls, text){ lbl.className='statelbl '+cls; lbl.textContent=text; }
+  function anim(ms, cls){ bar.className='phase '+(cls||''); let t0=performance.now();
+    cancelAnimationFrame(animT);
+    const step=()=>{ const p=Math.min(1,(performance.now()-t0)/ms); fill.style.width=(p*100)+'%';
+      if(p<1) animT=requestAnimationFrame(step); };
+    animT=requestAnimationFrame(step); }
+  function resetPipeline(){ clearTimeout(dwellT); clearTimeout(fetchT); cancelAnimationFrame(animT); fill.style.width='0%'; }
+
+  function openCard(sym, el, latency, fromCache){
+    const d = DATA[sym];
+    document.getElementById('cName').textContent = sym;
+    document.getElementById('cKind').textContent = d.kind;
+    const sig=document.getElementById('cSig');
+    sig.innerHTML = d.approx ? d.sig.replace('// matched line','<span class="approx">// matched line</span>') : d.sig;
+    const doc=document.getElementById('cDoc'); doc.textContent=d.doc||''; doc.style.display=d.doc?'':'none';
+    document.getElementById('cDefLoc').textContent=d.def;
+    const alt=document.getElementById('cAlt');
+    alt.hidden=!d.alt; if(d.alt) document.getElementById('cAltLoc').textContent=d.alt;
+    document.getElementById('cRefCount').textContent=d.refs+' references';
+    document.getElementById('cRefs').innerHTML =
+      d.list.slice(0,5).map(l=>`<div class="hc-ref"><span style="color:#4a4a58">❯</span><a href="#" onclick="return false">${l}</a></div>`).join('')
+      + (d.refs>d.list.length?`<div class="hc-ref more">… ${d.refs-d.list.length} more in the References panel</div>`:'');
+    const r=el.getBoundingClientRect();
+    card.style.left=Math.max(12,Math.min(r.left, window.innerWidth-430))+'px';
+    let top=r.bottom+8;
+    card.classList.add('open');
+    const ch=card.offsetHeight||220;
+    if(top+ch>window.innerHeight-12) top=r.top-ch-8;
+    card.style.top=top+'px';
+    setState('open', fromCache?'open — served from LRU cache':'open — rg answered in '+latency+'ms');
+  }
+  function closeCard(reason){ card.classList.remove('open'); if(reason) setState('idle', reason); }
+
+  document.querySelectorAll('.tok').forEach(el=>{
+    el.addEventListener('pointerenter', ()=>{
+      clearTimeout(graceT); resetPipeline(); hoveredEl=el;
+      const sym=el.dataset.sym;
+      setState('dwell','dwell — 350ms, no request yet'); anim(SPEC.dwell);
+      log(`enter ${sym} → dwell timer armed`);
+      dwellT=setTimeout(()=>{
+        const d=DATA[sym];
+        if(cache.has(sym)&&!d.none){ log(`${sym}: LRU hit — no rg spawned`); openCard(sym, el, 0, true); return; }
+        setState('fetch',`fetching — one rg spawned (${d.latency}ms${d.cold?' cold':''})`); anim(d.latency,'fetch');
+        log(`${sym}: dwell passed → POST /api/code-nav/hover`);
+        fetchT=setTimeout(()=>{
+          if(hoveredEl!==el) return;
+          if(d.none){ setState('none','answer below render threshold — nothing renders, silently');
+            log(`${sym}: 1 reference &lt; threshold → no card, no error`); return; }
+          cache.add(sym); openCard(sym, el, d.latency, false);
+          log(`${sym}: card open (rg ${d.latency}ms) → cached`);
+        }, d.latency);
+      }, SPEC.dwell);
+    });
+    el.addEventListener('pointerleave', ()=>{
+      hoveredEl=null; resetPipeline();
+      if(card.classList.contains('open')){
+        graceT=setTimeout(()=>{ closeCard('idle — left with 250ms grace, card closed'); }, SPEC.grace);
+        setState('dwell','leave — 250ms grace (enter the card to keep it)');
+      } else { setState('idle','idle — left before dwell: zero requests spawned'); log('leave before dwell → nothing ever happened'); }
+    });
+  });
+  card.addEventListener('pointerenter', ()=>{ clearTimeout(graceT); setState('open','open — pointer inside the card'); });
+  card.addEventListener('pointerleave', ()=>{ graceT=setTimeout(()=>closeCard('idle — left the card'), SPEC.grace); });
+  document.getElementById('pane').addEventListener('scroll', ()=>{
+    if(card.classList.contains('open')||fetchT){ resetPipeline(); closeCard('idle — scroll closed the card / aborted the fetch'); log('scroll → close + abort'); }
+  });
+</script>
+</body>
+</html>

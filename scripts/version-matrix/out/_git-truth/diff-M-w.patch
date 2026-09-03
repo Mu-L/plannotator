@@ -1,0 +1,119 @@
+diff --git a/apps/mobile/src/App.tsx b/apps/mobile/src/App.tsx
+index 528a711..be21d53 100644
+--- a/apps/mobile/src/App.tsx
++++ b/apps/mobile/src/App.tsx
+@@ -1,5 +1,5 @@
+ import { HomeScreen } from "./screens/Home";
+ 
+ export function App() {
+-  return <HomeScreen title="acme" />;
++  return <HomeScreen title="acme spaceship" />;
+ }
+diff --git a/apps/web/src/index.ts b/apps/web/src/index.ts
+index 48d0749..bf44b1c 100644
+--- a/apps/web/src/index.ts
++++ b/apps/web/src/index.ts
+@@ -3,8 +3,10 @@ import { Button } from "@acme/universal";
+ 
+ export function main(): void {
+   const root = document.getElementById("root");
+-  if (!root) throw new Error("missing root");
++  if (!root) throw new Error("root element not found");
+   renderApp(root, Button);
+ }
+ 
+ main();
++
++export const BUILD_CHANNEL = "canary";
+diff --git a/apps/web/src/legacy.ts b/apps/web/src/legacy.ts
+deleted file mode 100644
+index c431922..0000000
+--- a/apps/web/src/legacy.ts
++++ /dev/null
+@@ -1,6 +0,0 @@
+-// Legacy bootstrap kept for reference; scheduled for deletion.
+-export function legacyBoot(): void {
+-  console.log("legacy boot path");
+-}
+-
+-export const LEGACY_FLAG = true;
+diff --git a/bigassets/metrics-6mb.txt b/bigassets/metrics-6mb.txt
+index 6104157..24e3986 100644
+--- a/bigassets/metrics-6mb.txt
++++ b/bigassets/metrics-6mb.txt
+@@ -99998,3 +99998,4 @@ metric line 00099997 value=000003699889 checksum=8b69478d padpadpad
+ metric line 00099998 value=000003699926 checksum=29a0c13e padpadpad
+ metric line 00099999 value=000003699963 checksum=c7d83aef padpadpad
+ metric line 00100000 value=000003700000 checksum=660fb4a0 padpadpad
++metric line APPENDED value=000000000000 checksum=deadbeef padpadpad
+diff --git a/packages/universal/src/components/etoro/Button.tsx b/packages/universal/src/components/spaceship/Button.tsx
+similarity index 67%
+rename from packages/universal/src/components/etoro/Button.tsx
+rename to packages/universal/src/components/spaceship/Button.tsx
+index a88d697..15fc2cc 100644
+--- a/packages/universal/src/components/etoro/Button.tsx
++++ b/packages/universal/src/components/spaceship/Button.tsx
+@@ -7,7 +7,7 @@ export interface ButtonProps {
+ 
+ export function Button(props: ButtonProps) {
+   return (
+-    <button style={{ color: theme.primary }} onClick={props.onPress}>
++    <button style={{ color: theme.primary, borderRadius: theme.radius }} onClick={props.onPress}>
+       {props.label}
+     </button>
+   );
+diff --git a/packages/universal/src/components/etoro/Chart.tsx b/packages/universal/src/components/spaceship/Chart.tsx
+similarity index 100%
+rename from packages/universal/src/components/etoro/Chart.tsx
+rename to packages/universal/src/components/spaceship/Chart.tsx
+diff --git a/packages/universal/src/components/etoro/Card.tsx b/packages/universal/src/components/spaceship/Panel.tsx
+similarity index 50%
+rename from packages/universal/src/components/etoro/Card.tsx
+rename to packages/universal/src/components/spaceship/Panel.tsx
+index b9db2e6..119c7d1 100644
+--- a/packages/universal/src/components/etoro/Card.tsx
++++ b/packages/universal/src/components/spaceship/Panel.tsx
+@@ -1,11 +1,11 @@
+ import { theme } from "./theme";
+ 
+-export interface CardProps {
++export interface PanelProps {
+   heading: string;
+   body: string;
+ }
+ 
+-export function Card(props: CardProps) {
++export function Panel(props: PanelProps) {
+   return (
+     <section style={{ border: theme.border }}>
+       <h2>{props.heading}</h2>
+@@ -13,3 +13,9 @@ export function Card(props: CardProps) {
+     </section>
+   );
+ }
++
++export const PANEL_KIND = "spaceship";
++
++export function panelId(props: PanelProps): string {
++  return "panel:" + props.heading;
++}
+diff --git a/packages/universal/src/components/etoro/theme.ts b/packages/universal/src/components/spaceship/theme.ts
+similarity index 100%
+rename from packages/universal/src/components/etoro/theme.ts
+rename to packages/universal/src/components/spaceship/theme.ts
+diff --git a/packages/universal/src/index.ts b/packages/universal/src/index.ts
+index 8d691cb..6e85d0b 100644
+--- a/packages/universal/src/index.ts
++++ b/packages/universal/src/index.ts
+@@ -1,4 +1,4 @@
+-export { Button } from "./components/etoro/Button";
+-export { Card } from "./components/etoro/Card";
+-export { Chart } from "./components/etoro/Chart";
+-export { theme } from "./components/etoro/theme";
++export { Button } from "./components/spaceship/Button";
++export { Panel } from "./components/spaceship/Panel";
++export { Chart } from "./components/spaceship/Chart";
++export { theme } from "./components/spaceship/theme";
+diff --git a/tools/build.sh b/tools/build.sh
+old mode 100644
+new mode 100755

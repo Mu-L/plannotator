@@ -1,0 +1,38 @@
+{
+  "version": "v0.25.1",
+  "binary": "/private/tmp/claude-501/-Users-ramos-plannotator-plannotator/34d56d5a-33a8-4878-92b2-3f4318214ae2/scratchpad/vm-cache/bin/v0.25.1/plannotator-darwin-arm64",
+  "binarySha256": "32d28facdf34c511982d38f22b5db53b71527536d2d0fc08fec1cf8f18a76257",
+  "port": 45732,
+  "initialDiffType": "since-base",
+  "capturedAt": "2026-08-06T05:46:23Z",
+  "http": {
+    "diff_initial": {
+      "path": "/api/diff",
+      "status": "200"
+    },
+    "diff": {
+      "path": "/api/diff (copy of initial)",
+      "status": "200"
+    },
+    "commits": {
+      "path": "/api/commits?limit=50",
+      "status": "200"
+    },
+    "probe_normal": {
+      "path": "/api/file-content?path=apps/web/src/index.ts",
+      "status": "200"
+    },
+    "probe_renamed": {
+      "path": "/api/file-content?path=packages/universal/src/components/spaceship/Panel.tsx&oldPath=packages/universal/src/components/etoro/Card.tsx&base=main",
+      "status": "200"
+    },
+    "probe_big": {
+      "path": "/api/file-content?path=bigassets/metrics-6mb.txt",
+      "status": "200"
+    },
+    "fresh": {
+      "path": "/api/diff/fresh",
+      "status": "200"
+    }
+  }
+}

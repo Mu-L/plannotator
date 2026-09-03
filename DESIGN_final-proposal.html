@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Decision Control</title>
+<style>
+  :root {
+    --bg: #101014; --panel: #17171c; --card: #1d1d24; --border: #2c2c36;
+    --fg: #e6e6ec; --muted: #8b8b98; --accent: #7aa2f7; --green: #3fb56b;
+    --amber: #d9a44a; --red: #e06c75; --popover: #22222b; --radius: 8px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; padding: 40px 24px 140px; }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 6px; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); margin: 0 0 22px; max-width: 720px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 40px 0 10px; }
+  .note { font-size: 13px; color: var(--muted); margin: 8px 0 0; max-width: 760px; }
+  .note strong { color: var(--fg); font-weight: 600; }
+  kbd { background: var(--card); border: 1px solid var(--border); border-bottom-width: 2px;
+    border-radius: 5px; padding: 0 5px; font-size: 11px; font-family: ui-monospace, monospace; }
+  .chipnote { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.05em;
+    padding: 1px 6px; border-radius: 99px; background: rgba(217,164,74,0.16); color: var(--amber); vertical-align: 1px; margin-left: 6px; }
+
+  /* tabs */
+  .tabs { display: flex; gap: 4px; flex-wrap: wrap; margin: 18px 0 0; }
+  .tab { padding: 6px 13px; border-radius: 7px; border: 1px solid transparent; background: transparent;
+    color: var(--muted); font-size: 12.5px; font-weight: 500; cursor: pointer; }
+  .tab:hover { color: var(--fg); }
+  .tab.on { background: var(--card); border-color: var(--border); color: var(--fg); }
+
+  /* sim bar */
+  .simbar { display: flex; gap: 18px; align-items: center; background: var(--panel);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 16px;
+    margin-top: 12px; position: sticky; top: 12px; z-index: 40; flex-wrap: wrap; }
+  .simbar label { display: flex; gap: 7px; align-items: center; font-size: 13px; color: var(--muted); cursor: pointer; user-select: none; }
+  .simbar label.off { opacity: 0.35; pointer-events: none; }
+  .simbar input { accent-color: var(--accent); }
+
+  /* strip */
+  .strip { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 10px 14px; display: flex; align-items: center; gap: 8px; margin-top: 14px; min-height: 50px; }
+  .strip .brand { display: flex; align-items: center; gap: 9px; margin-right: auto; min-width: 0; }
+  .logo { width: 20px; height: 20px; border-radius: 5px; flex: none; background: linear-gradient(135deg, #7aa2f7, #4a6ac7); }
+  .bname { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bmeta { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .divider { width: 1px; height: 18px; background: var(--border); margin: 0 2px; }
+  .tglicon { width: 26px; height: 26px; border-radius: 6px; border: none; background: transparent;
+    color: var(--muted); font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
+
+  /* buttons */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px;
+    border: 1px solid var(--border); border-radius: 7px; background: var(--card); color: var(--fg);
+    font-size: 12.5px; font-weight: 500; cursor: pointer; white-space: nowrap;
+    transition: background 0.12s, opacity 0.15s; }
+  .btn:hover { background: #24242e; }
+  .btn.success { background: var(--green); border-color: var(--green); color: #0d1410; }
+  .btn.success:hover { filter: brightness(1.08); background: var(--green); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #0e1118; }
+  .btn.primary:hover { filter: brightness(1.08); background: var(--accent); }
+  .btn.ghostx { border-color: transparent; background: transparent; color: var(--muted); padding: 5px 8px; font-size: 14px; }
+  .btn.ghostx:hover { background: #22222b; color: var(--fg); }
+  .btn.muted { opacity: 0.4; cursor: not-allowed; }
+  .count { background: rgba(255,255,255,0.22); border-radius: 99px; font-size: 10.5px; padding: 0 6px; line-height: 16px; font-weight: 700; }
+
+  /* destination pill */
+  .destwrap { position: relative; }
+  .dest { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 9px;
+    border-radius: 6px; background: #26262f; border: none; color: var(--fg); font-size: 12px; font-weight: 500; cursor: pointer; }
+  .dest:hover { background: #2c2c37; }
+  .destmenu { position: absolute; right: 0; top: calc(100% + 5px); min-width: 170px; background: var(--popover);
+    border: 1px solid var(--border); border-radius: 9px; padding: 4px; box-shadow: 0 12px 34px rgba(0,0,0,0.5); z-index: 45; display: none; }
+  .destmenu.open { display: block; }
+  .dmi { padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .dmi:hover, .dmi.sel { background: #2a2a35; }
+  .dmi .d { font-size: 10.5px; color: var(--muted); }
+  .dhint { border-top: 1px solid var(--border); margin-top: 4px; padding: 6px 10px 3px; font-size: 10px; color: var(--muted); }
+
+  /* split + popover */
+  .split { display: inline-flex; position: relative; }
+  .split .btn.left { border-radius: 7px 0 0 7px; border-right-width: 0; }
+  .split .btn.seg { border-radius: 0 7px 7px 0; padding: 5px 7px; }
+  .split .btn.seg.s-success { background: var(--green); border-color: var(--green); color: #0d1410; }
+  .split .btn.seg.s-primary { background: var(--accent); border-color: var(--accent); color: #0e1118; }
+  .split .btn.seg.s-plain { color: var(--muted); }
+  .split .btn.seg svg { width: 13px; height: 13px; transition: transform 0.15s; }
+  .split .btn.seg.open svg { transform: rotate(180deg); }
+  .split .btn.seg.s-success::before, .split .btn.seg.s-primary::before {
+    content: ''; width: 1px; align-self: stretch; background: rgba(0,0,0,0.25); margin-right: 6px; }
+
+  .menu { position: absolute; right: 0; top: calc(100% + 6px); width: 300px;
+    background: var(--popover); border: 1px solid var(--border); border-radius: 10px;
+    padding: 6px; box-shadow: 0 14px 40px rgba(0,0,0,0.55); z-index: 30; display: none; }
+  .menu.open { display: block; animation: pop 0.13s ease-out; }
+  @keyframes pop { from { opacity: 0; transform: translateY(-4px); } }
+  .mi { display: flex; flex-direction: column; gap: 1px; padding: 8px 10px; border-radius: 7px; cursor: pointer; }
+  .mi:hover { background: #2a2a35; }
+  .mi .t { font-size: 12.5px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .mi .d { font-size: 11px; color: var(--muted); }
+  .mi.pos .t { color: var(--green); }
+  .mi.destr .t { color: var(--red); }
+  .mi.disabled { opacity: 0.4; cursor: not-allowed; }
+  .mi.disabled:hover { background: transparent; }
+  .mdiv { height: 1px; background: var(--border); margin: 4px 8px; }
+  .gatechip { font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; padding: 1px 5px;
+    border-radius: 99px; background: rgba(217,164,74,0.18); color: var(--amber); }
+
+  /* composer morph */
+  .composer { padding: 4px; }
+  .composer .back { display: flex; align-items: center; gap: 6px; background: none; border: none;
+    color: var(--muted); font-size: 12px; cursor: pointer; padding: 4px 6px; margin-bottom: 4px; }
+  .composer .back:hover { color: var(--fg); }
+  .composer textarea { width: 100%; min-height: 60px; max-height: 144px; resize: none; overflow-y: auto;
+    background: var(--card); border: 1px solid var(--border); border-radius: 7px; color: var(--fg);
+    font: inherit; font-size: 12.5px; padding: 8px 10px; }
+  .composer .crow { display: flex; justify-content: space-between; align-items: center; margin-top: 7px; padding: 0 2px; }
+  .composer .hint { font-size: 10.5px; color: var(--muted); }
+
+  /* dialogs */
+  .scrim { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none;
+    align-items: center; justify-content: center; z-index: 60; }
+  .scrim.open { display: flex; }
+  .dlg { width: 440px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; box-shadow: 0 24px 70px rgba(0,0,0,0.6); }
+  .dlg h3 { margin: 0 0 6px; font-size: 15px; }
+  .dlg p { margin: 0 0 14px; font-size: 12.5px; color: var(--muted); }
+  .dlg textarea { width: 100%; min-height: 70px; resize: vertical; background: var(--card);
+    border: 1px solid var(--border); border-radius: 8px; color: var(--fg); font: inherit; font-size: 13px; padding: 9px 11px; }
+  .dlg .row { display: flex; justify-content: flex-end; gap: 8px; align-items: center; margin-top: 14px; }
+  .dlg .row.spread { justify-content: space-between; }
+  .dlg .row label { font-size: 12px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+  .btn.danger { color: var(--red); border-color: rgba(224,108,117,0.4); background: transparent; }
+
+  /* toast */
+  .toast { position: fixed; bottom: 26px; left: 50%; transform: translate(-50%, 8px); max-width: 560px;
+    background: var(--popover); border: 1px solid var(--border); border-radius: 9px;
+    padding: 10px 16px; font-size: 13px; box-shadow: 0 12px 34px rgba(0,0,0,0.5);
+    opacity: 0; visibility: hidden; transition: all 0.18s; z-index: 70; }
+  .toast.show { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+  .toast .who { color: var(--muted); font-size: 11.5px; margin-top: 2px; font-family: ui-monospace, monospace; }
+
+  /* foot + tables */
+  .foot { font-size: 12.5px; color: var(--muted); margin-top: 10px; max-width: 760px;
+    border-left: 3px solid var(--accent); background: rgba(122,162,247,0.06);
+    padding: 9px 14px; border-radius: 0 8px 8px 0; }
+  .foot strong { color: var(--fg); }
+  table { border-collapse: collapse; width: 100%; font-size: 12px; margin-top: 10px; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+  td .p { color: var(--fg); font-weight: 600; }
+  .tablewrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px 12px 10px; }
+  .rule { color: var(--green); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>The unified decision control — final proposal, every surface</h1>
+  <p class="sub">One adaptive split control per header plus a ghost-✕ Close. <span class="rule">Approve/Done and Send Feedback never render side by side, in any state.</span> The caret carries the alternates and the note; the composer morphs inside the same popover; <kbd>⌘</kbd><kbd>↩</kbd> always fires the visible primary. Everything below is live — labels, menus, confirms and toasts are the post-audit truth (this page supersedes the older mocks).</p>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="simbar">
+    <label id="lblAnn"><input type="checkbox" id="hasAnn" checked /> Session has annotations (3)</label>
+    <label id="lblGate"><input type="checkbox" id="gateOn" /> Gated session (<code>--gate</code> — agent blocks on your verdict)</label>
+    <label id="lblSelf"><input type="checkbox" id="selfPr" /> You authored this PR</label>
+    <label id="lblCap"><input type="checkbox" id="capOn" checked /> Runtime delivers notes on approve <span class="chipnote">PR5</span></label>
+  </div>
+
+  <div id="stripHost"></div>
+  <p class="note" id="surfNote"></p>
+  <div class="foot" id="surfFoot"></div>
+
+  <h2>State map — the whole system on one screen</h2>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Surface · state</th><th>Primary</th><th>Caret menu (in order)</th><th>⌘↩</th><th>Ghost ✕ Close</th></tr></thead>
+    <tbody>
+      <tr><td>Annotate (file/folder/last/url/html/live-app) · empty</td><td><span class="p">Done</span> (green)</td><td>Done with a note… → composer · Request changes… → composer</td><td>Done</td><td>/api/exit · dismissed</td></tr>
+      <tr><td>Annotate · 3 annotations</td><td><span class="p">Send Feedback · 3</span></td><td>Send with a note… → composer · Done, discard 3 annotations… → confirm</td><td>Send Feedback</td><td>warns, then /api/exit</td></tr>
+      <tr><td>Annotate gate · empty</td><td><span class="p">Approve</span> (green)</td><td>Approve with a note… <em>(capability-gated)</em> · Request changes…</td><td>Approve</td><td>/api/exit · dismissed · strict gate exits 1</td></tr>
+      <tr><td>Annotate gate · 3 annotations</td><td><span class="p">Send Feedback · 3</span></td><td>Send with a note… · Approve with notes <em>(gated)</em> · Approve, discard 3 annotations… → confirm</td><td>Send Feedback</td><td>warns, then exit</td></tr>
+      <tr><td>Code review agent · empty</td><td><span class="p">Approve</span> (green)</td><td>Approve with a note… <em>(gated, PR5)</em> · Request changes…</td><td>Approve</td><td>/api/exit · dismissed</td></tr>
+      <tr><td>Code review agent · 3 annotations</td><td><span class="p">Send Feedback · 3</span></td><td>Send with a note… · Approve with notes <em>(gated, PR5)</em> · Approve, discard 3 annotations… → confirm</td><td>Send Feedback</td><td>warns, then exit</td></tr>
+      <tr><td>Code review PR (GitHub/GitLab) · empty</td><td><span class="p">Approve</span> (muted when self-authored)</td><td>Approve with a comment… → dialog · Request changes… → dialog <em>(PR6 detail, confirm wording)</em></td><td>primary (no-op when muted)</td><td>warns if content, then exit</td></tr>
+      <tr><td>Code review PR · 3 annotations</td><td><span class="p">Post Comments · 3</span></td><td>Approve with comments… → dialog · Post comments, then… → dialog</td><td>Post Comments</td><td>warns, then exit</td></tr>
+      <tr><td>Review standalone (no origin)</td><td colspan="4">unchanged — <span class="p">[Copy Feedback]</span> only; no decision control ("No Annotations" dialog stays for the copy path)</td></tr>
+      <tr><td>Plan review · plan mode</td><td colspan="4">untouched in this project — the ExitPlanMode approval channel cannot carry side-band feedback; follow-up issue filed for later adoption</td></tr>
+      <tr><td>Archive · guides.show viewer · goal setup</td><td colspan="4">untouched — read-only surfaces, no decisions</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note"><strong>Compact / touch:</strong> the same spec generates the menu rows, so every state above has a visible positive action on phones too (no <kbd>⌘</kbd><kbd>↩</kbd>-only paths — the branch-review regression this prevents). The composer is a dialog there, never a textarea inside the menu. <strong>Sidebar:</strong> code review also gains a durable <strong>+ General comment</strong> in the sidebar's General section (PR4) — creating one flips the header to Send Feedback · 1, which is the proof the control is state-driven.</p>
+
+  <h2>Which PR ships what</h2>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>PR</th><th>Ships</th></tr></thead>
+    <tbody>
+      <tr><td>PR1</td><td>The shared control + pure spec in packages/ui (nothing mounted)</td></tr>
+      <tr><td>PR2</td><td>Annotate adopts (all six surfaces, gate mode, compact) + deletes its approve-with-notes dialog stack</td></tr>
+      <tr><td>PR3</td><td>Review agent mode adopts + deletes AgentReviewActions, the dimmed-Approve trap, and the approve warning dialog</td></tr>
+      <tr><td>PR4</td><td>Sidebar + General comment (the overall-annotation community ask)</td></tr>
+      <tr><td>PR5</td><td>Approve-with-notes delivery: client drops the LGTM placeholder, four consumers stop discarding, capability advert (both runtimes). Until it lands per origin, both approve-carrying menu items are absent there — nothing ever silently drops a note</td></tr>
+      <tr><td>PR6</td><td>Platform PR mode adopts the shape (this page shows it; option B = skip PR6 and document the exception)</td></tr>
+      <tr><td>PR7</td><td>Consolidation: shared popover-dismiss hook, docs, UI-TESTING flows</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- GitHub submission dialog -->
+  <div class="scrim" id="ghScrim">
+    <div class="dlg">
+      <h3 id="ghTitle">Approve pull request</h3>
+      <p>The <strong>existing</strong> ReviewSubmissionDialog — unchanged. Its general-comment field is the only note field in PR mode (the caret composer never exists here; a second field would double-post).</p>
+      <textarea placeholder="Leave a comment on the review (optional)…"></textarea>
+      <div class="row spread">
+        <label><input type="checkbox" checked /> Post 3 file comments with it</label>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghostx" data-close="ghScrim">Cancel</button>
+          <button class="btn success" data-act="gh-done">Submit to GitHub</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- confirm dialog -->
+  <div class="scrim" id="cfScrim">
+    <div class="dlg" style="width:410px">
+      <h3 id="cfTitle"></h3>
+      <p id="cfBody"></p>
+      <div class="row">
+        <button class="btn ghostx" data-act="cf-cancel">Cancel</button>
+        <button class="btn danger" id="cfGo"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"><div id="toastMsg"></div><div class="who" id="toastWho"></div></div>
+</div>
+
+<script>
+  var CHEV = '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>';
+  var SURFACES = [
+    { id: 'file',   tab: 'Annotate · file',   kind: 'annotate', brand: ['NOTES.md', 'plannotator annotate NOTES.md'], closeTip: 'Close session without sending' },
+    { id: 'folder', tab: 'Annotate · folder', kind: 'annotate', brand: ['docs/ · 12 files', 'plannotator annotate docs/'], closeTip: 'Close session without sending' },
+    { id: 'last',   tab: 'Annotate · last',   kind: 'annotate', brand: ['Last agent message', '/plannotator-last'], closeTip: 'Dismiss without telling the agent' },
+    { id: 'review', tab: 'Code review · agent', kind: 'review', brand: ['feat/embed-picker', 'ramos/plannotator · since-main'], closeTip: 'Close review without feedback' },
+    { id: 'pr',     tab: 'Code review · PR',  kind: 'platform', brand: ['PR #1451 · compare local branch with remote', 'github.com · leoreisdias → main'], closeTip: 'Close review without feedback' },
+  ];
+
+  var state = { surf: 'file', ann: true, gate: false, self: false, cap: true, dest: 'platform',
+    pop: null /* null|'menu'|'composer' */, item: null, drafts: {}, destOpen: false, confirm: null };
+
+  function surf() { return SURFACES.find(function (s) { return s.id === state.surf; }); }
+  function n() { return state.ann ? 3 : 0; }
+  function isGate() { return surf().kind === 'annotate' && state.gate; }
+  function effKind() {
+    var k = surf().kind;
+    if (k === 'platform' && state.dest === 'agent') return 'review';
+    return k;
+  }
+
+  /* ---------- the spec (mirrors buildDecisionSpec, labels verbatim from the approved prototype + spec §2.2) */
+  function spec() {
+    var k = effKind(), c = n(), cap = state.cap, items = [];
+    if (k === 'annotate' && !isGate()) {
+      if (!c) return { primary: { label: 'Done', tone: 'success', act: 'an-done' }, items: [
+        { id: 'note-pos', pos: 1, label: 'Done with a note…', sub: 'Finish and send a short note with the approval',
+          composer: { title: 'Done with a note', action: 'Done — send note', tone: 'success', act: 'an-done-note' } },
+        { div: 1 },
+        { id: 'note-neg', label: 'Request changes…', sub: 'Write overall feedback — sent as a change request',
+          composer: { title: 'Request changes', action: 'Send as feedback', tone: 'primary', act: 'an-request' } }] };
+      return { primary: { label: 'Send Feedback', tone: 'primary', count: c, act: 'an-send' }, items: [
+        { id: 'note-send', label: 'Send with a note…', sub: 'Add an overall note on top of your ' + c + ' annotations',
+          composer: { title: 'Send with a note', action: 'Send feedback with note', tone: 'primary', act: 'an-send-note' } },
+        { div: 1 },
+        { id: 'discard', destr: 1, label: 'Done, discard ' + c + ' annotations…', sub: 'Asks to confirm — the annotations are not sent',
+          confirm: { title: 'Discard ' + c + ' annotations and finish?', body: 'Your annotations are change requests. Finishing without them sends a "reviewed, no feedback" record.', go: 'Discard & finish', act: 'an-discard' } }] };
+    }
+    if (k === 'annotate' && isGate()) {
+      if (!c) { var it = [];
+        if (cap) it.push({ id: 'note-pos', pos: 1, label: 'Approve with a note…', gated: 1, sub: 'Approve and send a short note with it',
+          composer: { title: 'Approve with a note', action: 'Approve — send note', tone: 'success', act: 'gate-appr-note' } });
+        if (cap) it.push({ div: 1 });
+        it.push({ id: 'note-neg', label: 'Request changes…', sub: 'Write overall feedback — sent as a change request',
+          composer: { title: 'Request changes', action: 'Send as feedback', tone: 'primary', act: 'an-request' } });
+        return { primary: { label: 'Approve', tone: 'success', act: 'gate-approve' }, items: it }; }
+      var it2 = [{ id: 'note-send', label: 'Send with a note…', sub: 'Add an overall note on top of your ' + c + ' annotations',
+          composer: { title: 'Send with a note', action: 'Send feedback with note', tone: 'primary', act: 'an-send-note' } }, { div: 1 }];
+      if (cap) it2.push({ id: 'appr-notes', pos: 1, gated: 1, label: 'Approve with notes',
+        sub: 'Approve; your ' + c + ' annotations ride along as non-blocking guidance', act: 'gate-appr-notes' });
+      it2.push({ id: 'discard', destr: 1, label: 'Approve, discard ' + c + ' annotations…', sub: 'Asks to confirm — the annotations are not sent',
+        confirm: { title: 'Discard ' + c + ' annotations and approve?', body: 'Your annotations are change requests. Approving without them tells the agent no changes are needed.', go: 'Discard & approve', act: 'gate-discard' } });
+      return { primary: { label: 'Send Feedback', tone: 'primary', count: c, act: 'an-send' }, items: it2 };
+    }
+    if (k === 'review') {
+      if (!c) { var it3 = [];
+        if (cap) it3.push({ id: 'note-pos', pos: 1, gated: 1, label: 'Approve with a note…', sub: 'Approve and send a short note with it',
+          composer: { title: 'Approve with a note', action: 'Approve — send note', tone: 'success', act: 'rv-appr-note' } });
+        if (cap) it3.push({ div: 1 });
+        it3.push({ id: 'note-neg', label: 'Request changes…', sub: 'Write overall feedback — sent as a change request',
+          composer: { title: 'Request changes', action: 'Send as feedback', tone: 'primary', act: 'rv-request' } });
+        return { primary: { label: 'Approve', tone: 'success', act: 'rv-approve' }, items: it3 }; }
+      var it4 = [{ id: 'note-send', label: 'Send with a note…', sub: 'Add an overall note on top of your ' + c + ' annotations',
+          composer: { title: 'Send with a note', action: 'Send feedback with note', tone: 'primary', act: 'rv-send-note' } }, { div: 1 }];
+      if (cap) it4.push({ id: 'appr-notes', pos: 1, gated: 1, label: 'Approve with notes',
+        sub: 'Approve; your ' + c + ' annotations ride along as non-blocking guidance', act: 'rv-appr-notes' });
+      it4.push({ id: 'discard', destr: 1, label: 'Approve, discard ' + c + ' annotations…', sub: 'Asks to confirm — the annotations are not sent',
+        confirm: { title: 'Discard ' + c + ' annotations and approve?', body: 'Your annotations are change requests. Approving without them tells the agent no changes are needed.', go: 'Discard & approve', act: 'rv-discard' } });
+      return { primary: { label: 'Send Feedback', tone: 'primary', count: c, act: 'rv-send' }, items: it4 };
+    }
+    /* platform (GitHub destination) — no composer items, ever */
+    var blocked = state.self;
+    if (!c) return { primary: { label: 'Approve', tone: 'success', act: blocked ? null : 'gh-approve', muted: blocked,
+        tip: blocked ? "You can't approve your own pull request on GitHub." : null }, items: [
+      { id: 'gh-appr-c', pos: 1, disabled: blocked, label: 'Approve with a comment…', sub: blocked ? "You can't approve your own PR" : 'Opens the submission dialog; the comment rides the review body', act: 'gh-approve' },
+      { div: 1 },
+      { id: 'gh-req', label: 'Request changes…', sub: 'Overall feedback, zero line comments — via the dialog', act: 'gh-request' }] };
+    return { primary: { label: 'Post Comments', tone: 'primary', count: c, act: 'gh-comment' }, items: [
+      { id: 'gh-appr-c', pos: 1, disabled: blocked, label: 'Approve with comments…', sub: blocked ? "You can't approve your own PR" : 'Submission dialog in approve mode', act: 'gh-approve' },
+      { div: 1 },
+      { id: 'gh-then', label: 'Post comments, then…', sub: 'Request changes / stay neutral — chosen in the dialog', act: 'gh-comment' }] };
+  }
+
+  /* ---------- actions → toasts (endpoint + archive truth) */
+  var TOASTS = {
+    'an-done':       ['Done — review finished', 'POST /api/feedback · "User reviewed the document and has no feedback." · archives as feedback'],
+    'an-done-note':  ['Done — note sent with approval', 'POST /api/feedback · approval framing + note as global comment'],
+    'an-request':    ['Change request sent', 'POST /api/feedback · note as global comment, no annotations'],
+    'an-send':       ['Feedback sent', 'POST /api/feedback · 3 annotations as change requests'],
+    'an-send-note':  ['Feedback sent with note', 'POST /api/feedback · 3 annotations + overall note'],
+    'an-discard':    ['Done — 3 annotations discarded', 'POST /api/feedback · "reviewed, no feedback" record'],
+    'gate-approve':  ['Approved', 'POST /api/approve · archives as approved · strict gate exits 0'],
+    'gate-appr-note':['Approved — note sent', 'POST /api/approve · note rides the approval body'],
+    'gate-appr-notes':['Approved with notes', 'POST /api/approve · 3 annotations ride along · archives as approved-with-notes'],
+    'gate-discard':  ['Approved — 3 annotations discarded', 'POST /api/approve · annotations dropped'],
+    'rv-approve':    ['Approved — LGTM', 'POST /api/feedback { approved: true } · delivered to the agent session'],
+    'rv-appr-note':  ['Approved — note sent', 'POST /api/feedback { approved: true } + note · needs PR5 delivery'],
+    'rv-appr-notes': ['Approved with notes', 'approved + 3 annotations as guidance · needs PR5 delivery'],
+    'rv-request':    ['Change request sent', 'POST /api/feedback · note as scope:general comment, no annotations'],
+    'rv-send':       ['Feedback sent', 'POST /api/feedback · 3 annotations as change requests'],
+    'rv-send-note':  ['Feedback sent with note', 'POST /api/feedback · 3 annotations + scope:general note'],
+    'rv-discard':    ['Approved — 3 annotations discarded', 'POST /api/feedback { approved: true, annotations: [] }'],
+    'gh-done':       ['Review submitted', 'Posted to GitHub via the submission dialog'],
+  };
+
+  var toastTimer;
+  function toast(a, b) {
+    document.getElementById('toastMsg').textContent = a;
+    document.getElementById('toastWho').textContent = b;
+    var el = document.getElementById('toast');
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('show'); }, 3200);
+  }
+
+  /* ---------- render */
+  function render() {
+    var s = surf(), sp = spec();
+    /* tabs */
+    document.getElementById('tabs').innerHTML = SURFACES.map(function (x) {
+      return '<button class="tab' + (x.id === state.surf ? ' on' : '') + '" data-tab="' + x.id + '">' + x.tab + '</button>';
+    }).join('');
+    /* sim toggles relevance */
+    document.getElementById('lblGate').classList.toggle('off', s.kind !== 'annotate');
+    document.getElementById('lblSelf').classList.toggle('off', s.kind !== 'platform');
+    /* strip */
+    var tone = sp.primary.tone === 'success' ? 'success' : 'primary';
+    var mut = sp.primary.muted ? ' muted' : '';
+    var pill =
+      '<div class="split">' +
+        '<button class="btn left ' + tone + mut + '" ' + (sp.primary.act && !sp.primary.muted ? 'data-act="' + sp.primary.act + '"' : '') +
+          (sp.primary.tip ? ' title="' + sp.primary.tip + '"' : '') + '>' + sp.primary.label +
+          (sp.primary.count ? ' <span class="count">' + sp.primary.count + '</span>' : '') + '</button>' +
+        '<button class="btn seg s-' + tone + (state.pop ? ' open' : '') + '" data-caret aria-label="More decisions" aria-expanded="' + (!!state.pop) + '">' + CHEV + '</button>' +
+        '<div class="menu' + (state.pop ? ' open' : '') + '" id="menuEl">' + (state.pop === 'composer' ? composerHtml() : menuHtml(sp)) + '</div>' +
+      '</div>';
+    var destPill = '';
+    if (s.kind === 'platform') {
+      destPill = '<div class="destwrap"><button class="dest" data-dest-toggle>' +
+        (state.dest === 'platform' ? 'GitHub' : 'Agent') + ' ' + CHEV.replace('width="2"', 'width="2" class="chev"') + '</button>' +
+        '<div class="destmenu' + (state.destOpen ? ' open' : '') + '">' +
+          '<div class="dmi' + (state.dest === 'platform' ? ' sel' : '') + '" data-set-dest="platform">GitHub<div class="d">Post to PR</div></div>' +
+          '<div class="dmi' + (state.dest === 'agent' ? ' sel' : '') + '" data-set-dest="agent">Agent<div class="d">Send to session</div></div>' +
+          '<div class="dhint"><kbd>⌥</kbd><kbd>⌥</kbd> to toggle</div></div></div>';
+    }
+    document.getElementById('stripHost').innerHTML =
+      '<div class="strip">' +
+        '<div class="brand"><div class="logo"></div><div><div class="bname">' + s.brand[0] + '</div><div class="bmeta">' + s.brand[1] + '</div></div></div>' +
+        destPill +
+        '<button class="btn ghostx" data-act="close" title="' + s.closeTip + '">✕</button>' +
+        pill +
+        '<div class="divider"></div><button class="tglicon">💬' + (n() ? '<span class="count" style="margin-left:3px;background:rgba(122,162,247,0.25);color:var(--accent)">' + n() + '</span>' : '') + '</button><button class="tglicon">✦</button>' +
+      '</div>';
+    renderNotes(s, sp);
+    if (state.pop === 'composer') {
+      var ta = document.querySelector('#menuEl textarea');
+      if (ta) { ta.value = state.drafts[draftKey()] || ''; setTimeout(function () { ta.focus(); }, 40); }
+    }
+  }
+
+  function menuHtml(sp) {
+    return sp.items.map(function (it) {
+      if (it.div) return '<div class="mdiv"></div>';
+      var cls = 'mi' + (it.pos ? ' pos' : '') + (it.destr ? ' destr' : '') + (it.disabled ? ' disabled' : '');
+      return '<div class="' + cls + '" ' + (it.disabled ? '' : 'data-item="' + it.id + '"') + '>' +
+        '<span class="t">' + it.label + (it.gated ? ' <span class="gatechip">PR5</span>' : '') + '</span>' +
+        '<span class="d">' + it.sub + '</span></div>';
+    }).join('');
+  }
+
+  function draftKey() { return state.surf + ':' + (state.item && state.item.id); }
+
+  function composerHtml() {
+    var c = state.item.composer;
+    return '<div class="composer">' +
+      '<button class="back" data-back>‹ ' + c.title + '</button>' +
+      '<textarea rows="2" placeholder="Add a note..." aria-label="Add a note"></textarea>' +
+      '<div class="crow"><span class="hint"><kbd>⌘</kbd><kbd>↩</kbd> send · <kbd>Esc</kbd> back, note kept</span>' +
+      '<button class="btn ' + (c.tone === 'success' ? 'success' : 'primary') + '" data-act="composer-send">' + c.action + '</button></div></div>';
+  }
+
+  function renderNotes(s, sp) {
+    var noteEl = document.getElementById('surfNote'), footEl = document.getElementById('surfFoot');
+    var K = effKind();
+    if (s.kind === 'annotate') {
+      var bits = {
+        file: 'File, folder, URL, raw-HTML and live-app sessions all mount this identical control (HTML surfaces keep their eye/refresh/pen cluster to the right, untouched). ',
+        folder: 'Folder sessions submit one body of feedback for the whole session — same control, same states. ',
+        last: '<strong>The /plannotator-last ask, answered:</strong> "that\'s fine & submit" is one click on Done — the positive "reviewed, no feedback" record that today only a hidden ⌘↩ can send. Close is a dismissal (the agent hears nothing); Done is an answer. ',
+      }[s.id] || '';
+      noteEl.innerHTML = bits + (isGate()
+        ? 'Gate mode maps onto the review row: the empty-state primary is <strong>Approve</strong> (posts /api/approve — exactly what ⌘↩ does today, so strict-gate exit codes are byte-identical).'
+        : 'Non-gated annotate has one transport: everything posts /api/feedback, and the note framing ("Done with a note" vs "Request changes") is what keeps the two outcomes distinguishable.');
+      footEl.innerHTML = '<strong>Ships in PR2</strong> (control itself in PR1). Transport: /api/feedback' + (isGate() ? ' + /api/approve (gate)' : '') + ', zero server change. The note lands as a GLOBAL_COMMENT riding the normal annotations array. ' + (isGate() ? 'Approve-with-note items appear only when the session advertises <code>approvalNotesSupported</code> (the existing annotate advert — toggle the PR5 checkbox to see them gate off).' : '');
+    } else if (K === 'review') {
+      noteEl.innerHTML = (s.kind === 'platform' ? 'Destination pill set to <strong>Agent</strong> — this is the same agent-mode control; flip the pill to see the GitHub side. ' : '') +
+        '<strong>The review asks, answered:</strong> "overall annotation" is Send with a note… (fast path) plus the sidebar\'s durable + General comment (PR4). The old dimmed-Approve trap (dim + tooltip + warning dialog) is deleted — approving away your notes is now an explicit menu item with one honest confirm.';
+      footEl.innerHTML = '<strong>Ships in PR3</strong> (+ PR4 sidebar). Transport: /api/feedback, note as a scope:general CodeAnnotation, zero server change. <strong>Approve-carrying items wear the PR5 chip:</strong> today all four runtime consumers discard feedback on approve, so those items render only where the capability advert says delivery works — toggle the PR5 checkbox to see the phase-1 menu. Nothing ever silently drops a note.';
+    } else {
+      noteEl.innerHTML = 'The destination pill (GitHub ▾ / Agent ▾, double-tap <kbd>⌥</kbd>) is unchanged and decides where the review goes. On the GitHub side the control keeps the same shape but <strong>every action lands in the existing submission dialog</strong> — the caret only chooses which mode it opens in. No composer here, ever: the dialog owns the one comment field. Self-approval stays blocked (toggle "You authored this PR").';
+      footEl.innerHTML = '<strong>Ships in PR6 — or not at all</strong> (open question 1: option B keeps today\'s three-button row as a documented exception; everything else on this page is unaffected either way). The empty-state "Request changes…" wording is a PR6 detail to confirm. Posting to the platform is not yet archived locally (known follow-up).';
+    }
+  }
+
+  /* ---------- events */
+  document.addEventListener('click', function (e) {
+    var t;
+    if ((t = e.target.closest('[data-tab]'))) { state.surf = t.dataset.tab; state.pop = null; state.item = null; state.destOpen = false; render(); return; }
+    if ((t = e.target.closest('[data-dest-toggle]'))) { state.destOpen = !state.destOpen; state.pop = null; render(); return; }
+    if ((t = e.target.closest('[data-set-dest]'))) { state.dest = t.dataset.setDest; state.destOpen = false; state.pop = null; state.item = null; render(); return; }
+    if ((t = e.target.closest('[data-caret]'))) { state.pop = state.pop ? null : 'menu'; if (!state.pop) state.item = null; state.destOpen = false; render(); return; }
+    if ((t = e.target.closest('[data-back]'))) { state.pop = 'menu'; render(); return; }
+    if ((t = e.target.closest('[data-item]'))) {
+      var sp = spec(), it = sp.items.find(function (x) { return x.id === t.dataset.item; });
+      if (!it) return;
+      if (it.composer) { state.item = it; state.pop = 'composer'; render(); return; }
+      if (it.confirm) { state.confirm = it.confirm; state.pop = null;
+        document.getElementById('cfTitle').textContent = it.confirm.title;
+        document.getElementById('cfBody').textContent = it.confirm.body;
+        document.getElementById('cfGo').textContent = it.confirm.go;
+        document.getElementById('cfScrim').classList.add('open'); render(); return; }
+      if (it.act) { state.pop = null; doAct(it.act); render(); return; }
+    }
+    if ((t = e.target.closest('[data-act]'))) { doAct(t.dataset.act); return; }
+    if ((t = e.target.closest('[data-close]'))) { document.getElementById(t.dataset.close).classList.remove('open'); return; }
+    if (e.target.classList && e.target.classList.contains('scrim')) { e.target.classList.remove('open'); if (state.confirm) { state.confirm = null; state.pop = 'menu'; render(); } return; }
+    if (!e.target.closest('.split') && !e.target.closest('.destwrap')) {
+      if (state.pop || state.destOpen) { state.pop = null; state.destOpen = false; render(); }
+    }
+  });
+
+  function doAct(act) {
+    if (act === 'close') {
+      if (n() > 0) { state.confirm = { title: "Feedback Won't Be Sent", body: 'You have 3 annotations that will be lost if you close. To send this feedback, use ' + spec().primary.label + ' instead.', go: 'Close Anyway', act: '_close' };
+        document.getElementById('cfTitle').textContent = state.confirm.title;
+        document.getElementById('cfBody').textContent = state.confirm.body;
+        document.getElementById('cfGo').textContent = state.confirm.go;
+        document.getElementById('cfScrim').classList.add('open'); return; }
+      toast('Session closed', '/api/exit · decision record: dismissed'); return;
+    }
+    if (act === 'cf-cancel') { document.getElementById('cfScrim').classList.remove('open'); state.confirm = null; state.pop = 'menu'; render(); return; }
+    if (act === 'composer-send') {
+      var ta = document.querySelector('#menuEl textarea');
+      if (!ta || !ta.value.trim()) { if (ta) ta.focus(); return; }  /* empty note: refocus, never gray */
+      delete state.drafts[draftKey()];
+      var a = state.item.composer.act; state.pop = null; state.item = null;
+      var tt = TOASTS[a]; toast(tt[0], tt[1]); render(); return;
+    }
+    if (act === 'gh-approve' || act === 'gh-request' || act === 'gh-comment') {
+      state.pop = null; render();
+      document.getElementById('ghTitle').textContent =
+        act === 'gh-approve' ? 'Approve pull request' : act === 'gh-request' ? 'Request changes' : 'Post review comments';
+      document.getElementById('ghScrim').classList.add('open'); return;
+    }
+    var t2 = TOASTS[act];
+    if (t2) {
+      if (act === 'gh-done') document.getElementById('ghScrim').classList.remove('open');
+      toast(t2[0], t2[1]);
+    }
+    if (state.confirm && state.confirm.act === act) state.confirm = null;
+  }
+
+  document.getElementById('cfGo').addEventListener('click', function () {
+    var a = state.confirm && state.confirm.act;
+    document.getElementById('cfScrim').classList.remove('open');
+    state.confirm = null;
+    if (a && a !== '_close') { var tt = TOASTS[a]; toast(tt[0], tt[1]); }
+    else if (a === '_close') toast('Session closed', 'Nothing sent · draft kept on disk');
+    render();
+  });
+
+  document.addEventListener('input', function (e) {
+    if (e.target.matches('#menuEl textarea')) state.drafts[draftKey()] = e.target.value;
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      /* the Esc ladder: composer → menu (draft kept) → close → propagate to host */
+      if (state.pop === 'composer') { e.stopPropagation(); state.pop = 'menu'; render(); return; }
+      if (state.pop === 'menu') { e.stopPropagation(); state.pop = null; render(); return; }
+      document.querySelectorAll('.scrim').forEach(function (s) { s.classList.remove('open'); });
+      state.destOpen = false; state.confirm = null; render(); return;
+    }
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      if (state.pop === 'composer') { e.preventDefault(); doAct('composer-send'); return; }
+      var sp = spec();
+      if (sp.primary.act && !sp.primary.muted) { e.preventDefault(); doAct(sp.primary.act); }
+    }
+  }, true);
+
+  document.getElementById('hasAnn').addEventListener('change', function (e) { state.ann = e.target.checked; state.pop = null; state.item = null; render(); });
+  document.getElementById('gateOn').addEventListener('change', function (e) { state.gate = e.target.checked; state.pop = null; render(); });
+  document.getElementById('selfPr').addEventListener('change', function (e) { state.self = e.target.checked; render(); });
+  document.getElementById('capOn').addEventListener('change', function (e) { state.cap = e.target.checked; state.pop = null; render(); });
+  render();
+</script>
+</body>
+</html>

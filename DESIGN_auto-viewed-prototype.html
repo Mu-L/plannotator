@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auto-Viewed Prototype</title>
+<style>
+  /* Deliberate single-theme: models Plannotator's dark review surface. */
+  :root {
+    --surface-0: #101014;
+    --surface-1: #16161c;
+    --surface-2: #1c1c24;
+    --card: #191920;
+    --border: #2a2a36;
+    --fg: #e7e7ee;
+    --muted: #8e8e9d;
+    --primary: #8f8ff2;
+    --primary-dim: #8f8ff226;
+    --viewed: #57c98a;
+    --viewed-dim: #57c98a1f;
+    --warn: #e0b45c;
+    --warn-dim: #e0b45c22;
+    --add-bg: #16281f;
+    --add-fg: #8fe0b0;
+    --del-bg: #2e1d24;
+    --del-fg: #eda2b2;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--surface-0); color: var(--fg);
+    font: 13px/1.45 var(--sans); height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+  }
+  button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+  button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; border-radius: 4px; }
+
+  /* ── Header ── */
+  header {
+    display: flex; align-items: center; gap: 10px; padding: 8px 14px;
+    background: var(--surface-1); border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .brand { font-weight: 700; font-size: 13px; letter-spacing: .01em; }
+  .brand em { color: var(--primary); font-style: normal; }
+  .head-sub { color: var(--muted); font-size: 12px; }
+  header .spacer { flex: 1; }
+  .btn {
+    padding: 5px 10px; border: 1px solid var(--border); border-radius: 6px;
+    background: var(--surface-2); font-size: 12px;
+  }
+  .btn:hover { border-color: var(--muted); }
+
+  /* ── Layout ── */
+  .main { display: flex; flex: 1; min-height: 0; }
+
+  /* ── File tree panel ── */
+  .tree {
+    width: 290px; min-width: 230px; background: var(--surface-1);
+    border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .tree-head {
+    display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+    border-bottom: 1px solid var(--border); position: relative;
+  }
+  .tree-title { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; }
+  .counter { font: 600 11px var(--mono); color: var(--muted); margin-left: auto; }
+  .counter b { color: var(--viewed); }
+  .gear { padding: 3px 5px; border-radius: 5px; color: var(--muted); }
+  .gear:hover { color: var(--fg); background: var(--surface-2); }
+  .tree-body { overflow-y: auto; padding: 6px 0; flex: 1; }
+  .tree-group { font: 600 10px var(--mono); color: var(--muted); padding: 8px 12px 3px; letter-spacing: .04em; }
+  .tree-row {
+    display: flex; align-items: center; gap: 7px; width: 100%; text-align: left;
+    padding: 4px 12px 4px 20px; font: 12px var(--mono); color: var(--fg);
+  }
+  .tree-row:hover { background: var(--surface-2); }
+  .tree-row.active { background: var(--primary-dim); }
+  .tree-row .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tree-row.viewed .name { color: var(--muted); text-decoration: line-through; text-decoration-color: #55556077; }
+  .tick {
+    width: 15px; height: 15px; border: 1.5px solid #4a4a58; border-radius: 4px; flex-shrink: 0;
+    display: grid; place-items: center; font-size: 10px; color: transparent; transition: all .18s ease;
+  }
+  .viewed .tick { background: var(--viewed); border-color: var(--viewed); color: #0c1a12; }
+  .suppressed-dot { font-size: 9px; color: var(--warn); flex-shrink: 0; }
+  .stat { font: 10px var(--mono); color: var(--muted); flex-shrink: 0; }
+  .stat .a { color: var(--add-fg); } .stat .d { color: var(--del-fg); }
+
+  /* ── Gear popover ── */
+  .popover {
+    position: absolute; top: 34px; right: 8px; z-index: 40; width: 240px;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: 0 8px 28px #00000080; padding: 6px;
+  }
+  .popover h4 { margin: 4px 8px 6px; font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+  .switch-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 7px 8px; border-radius: 6px; text-align: left; }
+  .switch-row:hover { background: var(--surface-1); }
+  .switch-row .lbl { flex: 1; }
+  .switch-row .lbl b { display: block; font-weight: 600; font-size: 12px; }
+  .switch-row .lbl span { font-size: 11px; color: var(--muted); }
+  .sw {
+    width: 30px; height: 17px; border-radius: 999px; background: #3a3a48; position: relative;
+    transition: background .15s ease; flex-shrink: 0;
+  }
+  .sw::after {
+    content: ""; position: absolute; top: 2px; left: 2px; width: 13px; height: 13px;
+    border-radius: 50%; background: #d9d9e2; transition: transform .15s ease;
+  }
+  .switch-row[aria-checked="true"] .sw { background: var(--primary); }
+  .switch-row[aria-checked="true"] .sw::after { transform: translateX(13px); }
+
+  /* ── All-files scroller ── */
+  .scroller { flex: 1; overflow-y: auto; padding: 14px 18px 60vh; min-width: 0; scroll-behavior: auto; }
+  .file-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    margin-bottom: 14px; overflow: hidden;
+  }
+  .file-card.is-active { border-color: #3d3d52; }
+  .fc-head {
+    display: flex; align-items: center; gap: 9px; padding: 8px 12px;
+    background: var(--surface-2); border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 5;
+  }
+  .fc-head .path { font: 600 12px var(--mono); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fc-head .new-badge, .fc-head .gen-badge {
+    font: 600 9px var(--mono); letter-spacing: .05em; padding: 2px 6px; border-radius: 4px; flex-shrink: 0;
+  }
+  .new-badge { background: var(--primary-dim); color: var(--primary); }
+  .gen-badge { background: #ffffff10; color: var(--muted); }
+  .viewed-btn {
+    display: flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 6px;
+    border: 1px solid var(--border); font-size: 11px; color: var(--muted); flex-shrink: 0;
+    transition: all .18s ease;
+  }
+  .viewed-btn:hover { border-color: var(--muted); color: var(--fg); }
+  .file-card.viewed .viewed-btn { background: var(--viewed-dim); border-color: #57c98a66; color: var(--viewed); }
+  .sup-chip { font: 600 9px var(--mono); color: var(--warn); background: var(--warn-dim); border-radius: 4px; padding: 2px 6px; flex-shrink: 0; }
+  .diff { font: 12px/1.6 var(--mono); overflow-x: auto; }
+  .diff .ln { display: flex; white-space: pre; }
+  .diff .no { width: 42px; flex-shrink: 0; text-align: right; padding-right: 10px; color: #55556a; user-select: none; }
+  .diff .add { background: var(--add-bg); color: var(--add-fg); }
+  .diff .del { background: var(--del-bg); color: var(--del-fg); }
+  .diff .ctx { color: #b9b9c6; }
+  .diff .hunk { color: var(--primary); background: #8f8ff20d; padding: 2px 12px; }
+  .collapsed-body {
+    padding: 10px 14px; color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 10px;
+  }
+  .expand-btn { color: var(--primary); font-size: 12px; padding: 2px 6px; border: 1px solid var(--border); border-radius: 5px; }
+  .end-marker { text-align: center; color: var(--muted); font-size: 12px; padding: 26px 0 6px; }
+
+  /* ── Toasts ── */
+  .toasts { position: fixed; top: 14px; right: 16px; z-index: 100; display: flex; flex-direction: column; gap: 8px; width: 340px; max-width: calc(100vw - 32px); }
+  .toast {
+    background: var(--surface-2); border: 1px solid var(--border); border-left: 3px solid var(--primary);
+    border-radius: var(--radius); padding: 11px 13px; box-shadow: 0 10px 30px #00000090;
+    animation: slide-in .22s ease;
+  }
+  .toast b { display: block; font-size: 12.5px; margin-bottom: 3px; }
+  .toast p { margin: 0 0 8px; font-size: 12px; color: var(--muted); }
+  .toast .actions { display: flex; gap: 8px; }
+  .toast .t-btn { font-size: 11.5px; font-weight: 600; padding: 4px 10px; border-radius: 5px; border: 1px solid var(--border); }
+  .toast .t-btn.primary { background: var(--primary); color: #14142a; border-color: var(--primary); }
+  @keyframes slide-in { from { opacity: 0; transform: translateY(-6px); } }
+  @media (prefers-reduced-motion: reduce) {
+    .toast { animation: none; }
+    .tick, .sw, .sw::after, .viewed-btn { transition: none; }
+  }
+
+  /* ── Settings modal ── */
+  .overlay { position: fixed; inset: 0; background: #000000a0; z-index: 90; display: grid; place-items: center; }
+  .modal {
+    width: 560px; max-width: calc(100vw - 40px); max-height: 80vh; overflow-y: auto;
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  }
+  .modal-head { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .modal-head b { font-size: 14px; }
+  .modal-tabs { display: flex; gap: 4px; padding: 8px 16px 0; border-bottom: 1px solid var(--border); }
+  .mtab { padding: 6px 12px; font-size: 12px; color: var(--muted); border-bottom: 2px solid transparent; }
+  .mtab.on { color: var(--fg); border-bottom-color: var(--primary); }
+  .modal-body { padding: 16px; }
+  .set-section { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; margin: 4px 0 10px; }
+  .set-row { display: flex; gap: 14px; align-items: flex-start; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius); }
+  .set-row .lbl { flex: 1; }
+  .set-row .lbl b { display: block; font-size: 13px; margin-bottom: 3px; }
+  .set-row .lbl p { margin: 0; font-size: 12px; color: var(--muted); }
+  .modal .dim-note { color: var(--muted); font-size: 11.5px; margin-top: 14px; }
+
+  /* ── Demo instrumentation strip ── */
+  .demo-strip {
+    flex-shrink: 0; display: flex; align-items: center; gap: 14px; padding: 6px 14px;
+    background: #0b0b0f; border-top: 1px solid var(--border); font: 11px var(--mono); color: var(--muted);
+  }
+  .demo-strip .tag { color: var(--warn); font-weight: 700; letter-spacing: .05em; }
+  .demo-strip .reading { color: var(--fg); }
+  .dwell-track { width: 90px; height: 5px; background: #2a2a36; border-radius: 3px; overflow: hidden; }
+  .dwell-fill { height: 100%; width: 0%; background: var(--primary); border-radius: 3px; }
+  .dwell-fill.full { background: var(--viewed); }
+  .demo-strip .ev { margin-left: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  @media (max-width: 760px) {
+    .tree { display: none; }
+    .head-sub { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="brand">plann<em>o</em>tator</span>
+  <span class="head-sub">Code review · since-base · feat/auto-viewed</span>
+  <span class="spacer"></span>
+  <button class="btn" id="open-settings">Settings → Git</button>
+  <button class="btn" id="reset-demo" title="Reset viewed state, suppression, and the first-time notice">Reset demo</button>
+</header>
+
+<div class="main">
+  <nav class="tree" aria-label="Changed files">
+    <div class="tree-head">
+      <span class="tree-title">Tree</span>
+      <span class="counter"><b id="viewed-count">0</b>/<span id="total-count">6</span> viewed</span>
+      <button class="gear" id="gear" aria-haspopup="true" aria-expanded="false" title="Tree controls" data-review-tree-settings>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <div class="popover" id="gear-pop" hidden role="menu" aria-label="Tree controls">
+        <h4>Tree controls</h4>
+        <button class="switch-row" role="switch" aria-checked="true" data-demo-inert>
+          <span class="lbl"><b>Viewed controls</b><span>Show viewed buttons and checks</span></span><span class="sw"></span>
+        </button>
+        <button class="switch-row" role="switch" aria-checked="true" data-demo-inert>
+          <span class="lbl"><b>Git add controls</b><span>Stage and unstage from the tree</span></span><span class="sw"></span>
+        </button>
+        <button class="switch-row" role="switch" aria-checked="true" id="gear-auto-viewed">
+          <span class="lbl"><b>Auto-mark viewed</b><span>Check files off as you scroll past</span></span><span class="sw"></span>
+        </button>
+      </div>
+    </div>
+    <div class="tree-body" id="tree-body"></div>
+  </nav>
+
+  <div class="scroller" id="scroller" tabindex="0" aria-label="All files diff">
+    <div id="cards"></div>
+    <div class="end-marker">· end of diff ·</div>
+  </div>
+</div>
+
+<div class="demo-strip" aria-hidden="true">
+  <span class="tag">PROTOTYPE</span>
+  <span>reading: <span class="reading" id="strip-reading">—</span></span>
+  <span>dwell <span id="strip-dwell">0.0</span>/1.0s</span>
+  <div class="dwell-track"><div class="dwell-fill" id="dwell-fill"></div></div>
+  <span>auto-viewed: <span id="strip-setting">ON</span></span>
+  <span class="ev" id="strip-event">scroll the diff — a file checks off once you read past it</span>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+(() => {
+  // ── Model: the diff under review is this feature's own implementation. ──
+  const FILES = [
+    { path: "packages/review-editor/utils/autoViewed.ts", isNew: true, add: 96, del: 0, lines: [
+      ["hunk","@@ -0,0 +1,96 @@"],
+      ["add","export const AUTO_VIEW_DWELL_MS = 1000;"],
+      ["add",""],
+      ["add","export interface AutoViewedCore {"],
+      ["add","  readingFileChanged(path: string | null, tsMs: number): void;"],
+      ["add","  filePassed(path: string): void;"],
+      ["add","  atBottom(path: string): void;"],
+      ["add","  suppress(path: string): void;"],
+      ["add","  unsuppress(path: string): void;"],
+      ["add","  resetSnapshot(): void;"],
+      ["add","}"],
+      ["add",""],
+      ["add","export function createAutoViewedCore(opts: {"],
+      ["add","  enabled: () => boolean;"],
+      ["add","  now: () => number;"],
+      ["add","  markViewed: (paths: string[]) => void;"],
+      ["add","}): AutoViewedCore {"],
+      ["add","  const dwell = new Map<string, number>();"],
+      ["add","  const suppressed = new Set<string>();"],
+      ["add","  let active: string | null = null;"],
+      ["add","  let activeSince = 0;"],
+      ["add","  // dwell is cumulative across visits, per diff snapshot"],
+      ["add","  // ..."],
+    ]},
+    { path: "packages/review-editor/hooks/useAutoViewed.ts", isNew: true, add: 64, del: 0, lines: [
+      ["hunk","@@ -0,0 +1,64 @@"],
+      ["add","export function useAutoViewed(opts: UseAutoViewedOptions) {"],
+      ["add","  const enabled = useConfigValue('reviewAutoViewed');"],
+      ["add","  // inert while the guide takeover or a commit detour is active"],
+      ["add","  const gated = opts.guideOpen || isCommitDetour(opts.diffBase);"],
+      ["add",""],
+      ["add","  // PR sessions: batch marks into one /api/pr-viewed POST (~2s window)"],
+      ["add","  const flushViewedBatch = useDebouncedBatch(opts.syncPrViewed, 2000);"],
+      ["add",""],
+      ["add","  useEffect(() => {"],
+      ["add","    core.readingFileChanged(gated ? null : opts.visibleFile, now());"],
+      ["add","  }, [opts.visibleFile, gated]);"],
+      ["add","  // ..."],
+    ]},
+    { path: "packages/review-editor/components/AllFilesCodeView.tsx", isNew: false, add: 18, del: 3, lines: [
+      ["hunk","@@ -1943,6 +1943,18 @@ function reportVisibleFile() {"],
+      ["ctx","  // rides CodeView's virtualization: getRenderedItems / getTopForItem"],
+      ["ctx","  const top = handle.getScrollTop();"],
+      ["del","  const visible = lastItemAbove(top + 50);"],
+      ["add","  const visible = lastItemAbove(top + 50);"],
+      ["add","  // downward transition + successor top above viewport = passed"],
+      ["add","  if (prev && isLater(visible, prev) && bottomOf(prev) <= top + EPSILON) {"],
+      ["add","    if (!handle.getItem(prev.id)?.collapsed) onFileScrolledPast?.(prev.path);"],
+      ["add","  }"],
+      ["add","  // at-bottom: the last file can never scroll out above"],
+      ["add","  if (atBottom() && visible) onFileScrolledPast?.(visible.path);"],
+      ["ctx","  onVisibleFileChange?.(visible?.path ?? null);"],
+    ]},
+    { path: "packages/review-editor/App.tsx", isNew: false, add: 42, del: 6, lines: [
+      ["hunk","@@ -2095,8 +2095,16 @@ const handleToggleViewed = (path: string) => {"],
+      ["ctx","  setViewedFiles(prev => {"],
+      ["ctx","    const next = new Set(prev);"],
+      ["del","    if (next.has(path)) next.delete(path);"],
+      ["del","    else next.add(path);"],
+      ["add","    if (next.has(path)) {"],
+      ["add","      next.delete(path);"],
+      ["add","      autoViewed.suppress(path); // \"come back to this\" is sacred"],
+      ["add","    } else {"],
+      ["add","      next.add(path);"],
+      ["add","      autoViewed.unsuppress(path);"],
+      ["add","    }"],
+      ["ctx","    return next;"],
+      ["ctx","  });"],
+    ]},
+    { path: "packages/ui/config/settings.ts", isNew: false, add: 9, del: 0, lines: [
+      ["hunk","@@ -212,6 +212,15 @@ export const settingsRegistry = {"],
+      ["ctx","  reviewShowViewedControls: {"],
+      ["ctx","    cookie: 'plannotator-review-viewed-controls', defaultValue: true,"],
+      ["ctx","  },"],
+      ["add","  // Auto-mark files viewed on scroll-past / navigate-away."],
+      ["add","  // Cookie-only like the other review-chrome preferences."],
+      ["add","  reviewAutoViewed: {"],
+      ["add","    cookie: 'plannotator-review-auto-viewed',"],
+      ["add","    defaultValue: true,"],
+      ["add","  },"],
+    ]},
+    { path: "bun.lock", isNew: false, generated: true, add: 214, del: 190, lines: [] },
+  ];
+
+  const AUTO_VIEW_DWELL_MS = 1000;
+  const EPSILON = 8;
+
+  const state = {
+    enabled: true,
+    viewed: new Set(),
+    suppressed: new Set(),
+    dwell: new Map(),           // path -> cumulative ms
+    collapsed: new Set(["bun.lock"]),
+    active: null,
+    activeSince: 0,
+    noticeSeen: false,
+    lastEvent: "",
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const scroller = $("scroller"), cards = $("cards"), treeBody = $("tree-body");
+
+  // ── Render ──
+  function slug(p){ return p.replace(/[^a-z0-9]/gi, "-"); }
+  function renderCards() {
+    cards.innerHTML = FILES.map(f => {
+      const isCollapsed = state.collapsed.has(f.path);
+      const body = isCollapsed
+        ? `<div class="collapsed-body">Collapsed — content not shown. Scrolling past never marks it viewed.
+             <button class="expand-btn" data-expand="${f.path}">Expand</button></div>`
+        : `<div class="diff">${f.lines.map(([k, t]) =>
+            k === "hunk" ? `<div class="hunk">${esc(t)}</div>`
+            : `<div class="ln ${k}"><span class="no">${k==="del"?"−":k==="add"?"+":" "}</span><span>${esc(t)}</span></div>`
+          ).join("")}</div>`;
+      return `<section class="file-card" id="card-${slug(f.path)}" data-path="${f.path}">
+        <div class="fc-head">
+          <span class="path">${esc(f.path)}</span>
+          ${f.isNew ? '<span class="new-badge">NEW</span>' : ""}
+          ${f.generated ? '<span class="gen-badge">GENERATED</span>' : ""}
+          <span class="sup-chip" data-sup hidden title="Manually un-viewed: auto-view will not re-mark this file">auto-view off</span>
+          <button class="viewed-btn" data-toggle="${f.path}"><span class="tick">✓</span> Viewed</button>
+        </div>
+        ${body}
+      </section>`;
+    }).join("");
+  }
+  function renderTree() {
+    const groups = {};
+    for (const f of FILES) {
+      const g = f.path.split("/").slice(0, 2).join("/") || f.path;
+      (groups[g] ||= []).push(f);
+    }
+    treeBody.innerHTML = Object.entries(groups).map(([g, fs]) =>
+      `<div class="tree-group">${esc(g)}/</div>` + fs.map(f =>
+        `<button class="tree-row" data-tree="${f.path}" id="tree-${slug(f.path)}">
+           <span class="tick">✓</span>
+           <span class="name">${esc(f.path.split("/").pop())}</span>
+           <span class="suppressed-dot" data-sup hidden title="Auto-view suppressed">●</span>
+           <span class="stat"><span class="a">+${f.add}</span> <span class="d">−${f.del}</span></span>
+         </button>`).join("")
+    ).join("");
+  }
+  function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+  function syncFile(path) {
+    const viewed = state.viewed.has(path), sup = state.suppressed.has(path);
+    const card = $("card-" + slug(path)), row = $("tree-" + slug(path));
+    card.classList.toggle("viewed", viewed);
+    row.classList.toggle("viewed", viewed);
+    row.classList.toggle("active", state.active === path);
+    card.classList.toggle("is-active", state.active === path);
+    card.querySelector("[data-sup]").hidden = !sup;
+    row.querySelector("[data-sup]").hidden = !sup;
+    card.querySelector(".viewed-btn").setAttribute("aria-pressed", viewed);
+  }
+  function syncAll() {
+    FILES.forEach(f => syncFile(f.path));
+    $("viewed-count").textContent = state.viewed.size;
+    $("total-count").textContent = FILES.length;
+    $("strip-setting").textContent = state.enabled ? "ON" : "OFF";
+    $("gear-auto-viewed").setAttribute("aria-checked", state.enabled);
+    const sToggle = document.querySelector("#settings-auto-viewed");
+    if (sToggle) sToggle.setAttribute("aria-checked", state.enabled);
+  }
+
+  // ── Auto-view core (mirrors autoViewed.ts semantics) ──
+  function commitDwell(now) {
+    if (state.active && !state.collapsed.has(state.active)) {
+      state.dwell.set(state.active, (state.dwell.get(state.active) || 0) + (now - state.activeSince));
+    }
+    state.activeSince = now;
+  }
+  function markViewed(path, why) {
+    if (!state.enabled || state.viewed.has(path) || state.suppressed.has(path)) return;
+    state.viewed.add(path);
+    syncAll();
+    event(`auto-viewed ${path.split("/").pop()} (${why})`);
+    if (!state.noticeSeen) { state.noticeSeen = true; firstTimeToast(); }
+  }
+  function tryPass(path, why) {
+    if ((state.dwell.get(path) || 0) >= AUTO_VIEW_DWELL_MS && !state.collapsed.has(path)) markViewed(path, why);
+  }
+
+  function cardTops() {
+    return FILES.map(f => {
+      const el = $("card-" + slug(f.path));
+      return { path: f.path, top: el.offsetTop, bottom: el.offsetTop + el.offsetHeight };
+    });
+  }
+  let prevActive = null;
+  function onScrollTick() {
+    const now = performance.now();
+    const top = scroller.scrollTop;
+    const tops = cardTops();
+    let visible = tops[0]?.path ?? null;
+    for (const t of tops) if (t.top <= top + 50) visible = t.path;
+    const atBottom = scroller.scrollHeight - top - scroller.clientHeight <= 2;
+
+    if (visible !== state.active) {
+      commitDwell(now);
+      const prev = state.active;
+      state.active = visible;
+      const order = FILES.map(f => f.path);
+      if (prev && visible && order.indexOf(visible) > order.indexOf(prev)) {
+        const prevBottom = tops.find(t => t.path === prev)?.bottom ?? 0;
+        if (prevBottom <= top + EPSILON) tryPass(prev, "scrolled past");
+      }
+      prevActive = prev;
+      syncAll();
+    }
+    if (atBottom && state.active) {
+      commitDwell(now);
+      tryPass(state.active, "end of diff");
+    }
+  }
+  let raf = null;
+  scroller.addEventListener("scroll", () => {
+    if (!raf) raf = requestAnimationFrame(() => { raf = null; onScrollTick(); });
+  });
+
+  // instrumentation + dwell maturation while parked
+  setInterval(() => {
+    const now = performance.now();
+    commitDwell(now);
+    const d = state.active ? (state.dwell.get(state.active) || 0) : 0;
+    $("strip-reading").textContent = state.active ? state.active.split("/").pop() : "—";
+    $("strip-dwell").textContent = Math.min(d / 1000, 9.9).toFixed(1);
+    const fill = $("dwell-fill");
+    fill.style.width = Math.min(100, d / AUTO_VIEW_DWELL_MS * 100) + "%";
+    fill.classList.toggle("full", d >= AUTO_VIEW_DWELL_MS);
+    const atBottom = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight <= 2;
+    if (atBottom && state.active) tryPass(state.active, "end of diff");
+  }, 150);
+
+  function event(msg) { state.lastEvent = msg; $("strip-event").textContent = msg; }
+
+  // ── Manual toggle: un-view suppresses (Rule 3) ──
+  function toggleViewed(path) {
+    if (state.viewed.has(path)) {
+      state.viewed.delete(path);
+      state.suppressed.add(path);
+      event(`un-viewed ${path.split("/").pop()} — auto-view suppressed for it`);
+    } else {
+      state.viewed.add(path);
+      state.suppressed.delete(path);
+      event(`marked ${path.split("/").pop()} viewed`);
+    }
+    state.noticeSeen = true; // an explicit toggle is proof of discovery
+    syncAll();
+  }
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-toggle]"); if (t) return toggleViewed(t.dataset.toggle);
+    const x = e.target.closest("[data-expand]");
+    if (x) { state.collapsed.delete(x.dataset.expand); renderCards(); syncAll(); event(`expanded ${x.dataset.expand} — dwell now counts`); return; }
+    const r = e.target.closest("[data-tree]");
+    if (r) { $("card-" + slug(r.dataset.tree)).scrollIntoView({ block: "start" }); return; }
+  });
+  // v shortcut on the active file (matches the real app's binding)
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "v" && !e.metaKey && !e.ctrlKey && state.active &&
+        !document.querySelector(".overlay") && document.activeElement?.tagName !== "INPUT") {
+      toggleViewed(state.active);
+    }
+    if (e.key === "Escape") { closePopover(); closeSettings(); }
+  });
+
+  // ── Gear popover ──
+  const gear = $("gear"), pop = $("gear-pop");
+  gear.addEventListener("click", () => {
+    const open = pop.hidden;
+    pop.hidden = !open;
+    gear.setAttribute("aria-expanded", String(open));
+    if (open) pop.querySelector("#gear-auto-viewed").focus();
+  });
+  function closePopover(){ pop.hidden = true; gear.setAttribute("aria-expanded", "false"); }
+  document.addEventListener("click", (e) => { if (!e.target.closest(".tree-head")) closePopover(); });
+  $("gear-auto-viewed").addEventListener("click", () => setEnabled(!state.enabled, "gear"));
+  document.querySelectorAll("[data-demo-inert]").forEach(b =>
+    b.addEventListener("click", () => event("that switch exists today — out of this prototype's scope")));
+
+  function setEnabled(on, from) {
+    state.enabled = on;
+    state.noticeSeen = true;
+    syncAll();
+    event(`auto-mark viewed ${on ? "enabled" : "disabled"} (${from})`);
+    if (!on && from === "toast") toast({ title: "Auto-mark viewed is off", desc: "Re-enable it in Settings → Git." });
+  }
+
+  // ── Toasts ──
+  function toast({ title, desc, action, ms = 10000 }) {
+    const el = document.createElement("div");
+    el.className = "toast"; el.setAttribute("role", "status");
+    el.innerHTML = `<b>${esc(title)}</b><p>${esc(desc)}</p>
+      <div class="actions">${action ? `<button class="t-btn primary">${esc(action)}</button>` : ""}
+      <button class="t-btn" data-dismiss>Dismiss</button></div>`;
+    $("toasts").appendChild(el);
+    const timer = setTimeout(() => el.remove(), ms);
+    el.querySelector("[data-dismiss]").addEventListener("click", () => { clearTimeout(timer); el.remove(); });
+    if (action) el.querySelector(".t-btn.primary").addEventListener("click", () => {
+      clearTimeout(timer); el.remove(); setEnabled(false, "toast");
+    });
+  }
+  function firstTimeToast() {
+    toast({
+      title: "Files are marked viewed as you scroll",
+      desc: "Scroll past a file or move on to the next and it's checked off. Turn this off in Settings → Git, or from the gear above the file list.",
+      action: "Turn off",
+    });
+  }
+
+  // ── Settings modal (Git tab excerpt) ──
+  $("open-settings").addEventListener("click", openSettings);
+  function openSettings() {
+    if (document.querySelector(".overlay")) return;
+    const ov = document.createElement("div");
+    ov.className = "overlay";
+    ov.innerHTML = `<div class="modal" role="dialog" aria-modal="true" aria-label="Settings">
+      <div class="modal-head"><b>Settings</b><span class="spacer" style="flex:1"></span>
+        <button class="btn" data-close>Close</button></div>
+      <div class="modal-tabs">
+        <span class="mtab">General</span><span class="mtab on">Git</span><span class="mtab">Appearance</span><span class="mtab">AI</span>
+      </div>
+      <div class="modal-body">
+        <div class="set-section">Viewed files</div>
+        <div class="set-row">
+          <span class="lbl"><b>Auto-mark viewed</b>
+            <p>Mark a file viewed when you scroll past it or move on to another file. Files you un-view stay un-viewed, and files that change on refresh become un-viewed.</p>
+          </span>
+          <button class="switch-row" style="width:auto;padding:2px" role="switch" id="settings-auto-viewed"
+            aria-checked="${state.enabled}" aria-label="Auto-mark viewed"><span class="sw"></span></button>
+        </div>
+        <p class="dim-note">Other Git-tab settings (default diff, base branch, panel view) exist today and are out of this prototype's scope.</p>
+      </div></div>`;
+    document.body.appendChild(ov);
+    const sw = ov.querySelector("#settings-auto-viewed");
+    sw.addEventListener("click", () => setEnabled(!state.enabled, "settings"));
+    ov.querySelector("[data-close]").addEventListener("click", closeSettings);
+    ov.addEventListener("click", (e) => { if (e.target === ov) closeSettings(); });
+    sw.focus();
+  }
+  function closeSettings() {
+    document.querySelector(".overlay")?.remove();
+    $("open-settings").focus();
+  }
+
+  // ── Reset ──
+  $("reset-demo").addEventListener("click", () => {
+    state.viewed.clear(); state.suppressed.clear(); state.dwell.clear();
+    state.noticeSeen = false; state.enabled = true;
+    state.collapsed = new Set(["bun.lock"]);
+    scroller.scrollTop = 0; state.active = null;
+    renderCards(); syncAll(); onScrollTick();
+    event("demo reset — scroll to see the first-time notice again");
+  });
+
+  renderTree(); renderCards(); syncAll(); onScrollTick();
+})();
+</script>
+</body>
+</html>

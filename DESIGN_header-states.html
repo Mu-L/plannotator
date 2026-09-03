@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plannotator Header States</title>
+<style>
+  :root {
+    --background: oklch(0.15 0.02 260);
+    --foreground: oklch(0.90 0.01 260);
+    --card: oklch(0.22 0.02 260);
+    --popover: oklch(0.28 0.025 260);
+    --primary: oklch(0.75 0.18 280);
+    --primary-foreground: oklch(0.15 0.02 260);
+    --secondary: oklch(0.65 0.15 180);
+    --muted: oklch(0.26 0.02 260);
+    --muted-foreground: oklch(0.72 0.02 260);
+    --accent: oklch(0.70 0.20 60);
+    --destructive: oklch(0.65 0.20 25);
+    --border: oklch(0.35 0.02 260);
+    --input: oklch(0.26 0.02 260);
+    --success: oklch(0.72 0.17 150);
+    --success-foreground: oklch(0.15 0.02 260);
+    --warning: oklch(0.75 0.15 85);
+    --radius: 0.625rem;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', 'Inter Variable', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1120px; margin: 0 auto; padding: 48px 28px 96px; }
+
+  h1 { font-size: 26px; font-weight: 650; letter-spacing: -0.02em; margin: 0 0 6px; }
+  .subtitle { color: var(--muted-foreground); font-size: 14px; margin: 0 0 40px; max-width: 72ch; }
+  h2 {
+    font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--muted-foreground); margin: 56px 0 6px; padding-top: 22px;
+    border-top: 1px solid color-mix(in oklab, var(--border) 55%, transparent);
+  }
+  h2 .n { color: var(--primary); margin-right: 8px; }
+  .lede { color: var(--foreground); font-size: 14px; margin: 0 0 22px; max-width: 78ch; }
+  .lede b { font-weight: 600; }
+  code {
+    font-family: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.86em; background: var(--muted); border-radius: 4px; padding: 1px 5px;
+  }
+
+  /* ---------- mock frame ---------- */
+  .state { margin: 0 0 34px; }
+  .state-title { font-size: 15px; font-weight: 600; margin: 0 0 3px; letter-spacing: -0.01em; }
+  .state-sub { font-size: 13px; color: var(--muted-foreground); margin: 0 0 12px; max-width: 82ch; }
+  .frame {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--background);
+    margin-bottom: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.25), 0 6px 18px -8px rgba(0,0,0,.4);
+  }
+  .frame + .frame { margin-top: 14px; }
+  .frame-tag {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 6px 12px;
+    background: color-mix(in oklab, var(--muted) 55%, transparent);
+    border-bottom: 1px solid color-mix(in oklab, var(--border) 55%, transparent);
+    color: var(--muted-foreground);
+  }
+  .frame-tag .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--muted-foreground); }
+  .frame-tag.current .dot { background: var(--warning); }
+  .frame-tag.proposed .dot { background: var(--success); }
+  .frame-tag.inflight .dot { background: var(--secondary); }
+  .frame-tag .file { margin-left: auto; font-weight: 400; letter-spacing: 0; text-transform: none; font-family: ui-monospace, monospace; font-size: 10px; opacity: .7; }
+  .caption { font-size: 12.5px; color: var(--muted-foreground); margin: 8px 2px 0; max-width: 84ch; }
+  .caption b { color: var(--foreground); font-weight: 550; }
+
+  /* ---------- header bars (faithful) ---------- */
+  .hdr {
+    height: 48px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px;
+    border-bottom: 1px solid color-mix(in oklab, var(--border) 50%, transparent);
+    background: color-mix(in oklab, var(--card) 50%, var(--background));
+  }
+  .hdr-review { height: 38px; padding: 4px 16px; }
+  .hdr-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .hdr-right { display: flex; align-items: center; gap: 8px; }
+  .wordmark { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+  .divider { width: 1px; height: 20px; background: color-mix(in oklab, var(--border) 50%, transparent); margin: 0 4px; flex: none; }
+
+  svg.i { width: 14px; height: 14px; flex: none; }
+  svg.i16 { width: 16px; height: 16px; flex: none; }
+
+  /* buttons — mirrors ui/button.tsx size=xs + ToolbarButtons variants */
+  .btn {
+    height: 28px; padding: 0 10px; border-radius: 6px;
+    font-size: 13px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 6px;
+    border: none; white-space: nowrap; flex: none;
+    font-family: inherit;
+  }
+  .btn-close { background: var(--muted); color: var(--muted-foreground); }
+  .btn-outline {
+    border: 1px solid var(--input); background: var(--background); color: var(--foreground);
+    box-shadow: 0 1px 2px rgba(0,0,0,.18);
+  }
+  .btn-success { background: var(--success); color: var(--success-foreground); box-shadow: 0 1px 2px rgba(0,0,0,.18); }
+  .btn-success.dimmed {
+    background: color-mix(in oklab, var(--success) 50%, transparent);
+    color: color-mix(in oklab, var(--success-foreground) 70%, transparent);
+  }
+  .btn-primary { background: var(--primary); color: var(--primary-foreground); box-shadow: 0 1px 2px rgba(0,0,0,.18); }
+  .btn-ghost-icon {
+    width: 28px; height: 28px; padding: 0; justify-content: center;
+    background: transparent; color: var(--muted-foreground); border-radius: 6px;
+  }
+  .btn-ghost-icon:hover { background: var(--muted); }
+
+  /* split pill */
+  .split { display: inline-flex; align-items: stretch; flex: none; }
+  .split .btn { border-radius: 6px 0 0 6px; }
+  .split .seg {
+    height: 28px; width: 24px; display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 0 6px 6px 0; flex: none;
+  }
+  .split.split-outline .btn { border-right: none; }
+  .split.split-outline .seg { border: 1px solid var(--input); background: var(--background); color: var(--muted-foreground); box-shadow: 0 1px 2px rgba(0,0,0,.18); }
+  .split.split-success .seg {
+    background: var(--success); color: var(--success-foreground);
+    border-left: 1px solid color-mix(in oklab, var(--success-foreground) 25%, transparent);
+    box-shadow: 0 1px 2px rgba(0,0,0,.18);
+  }
+  .split.split-primary .seg {
+    background: var(--primary); color: var(--primary-foreground);
+    border-left: 1px solid color-mix(in oklab, var(--primary-foreground) 25%, transparent);
+    box-shadow: 0 1px 2px rgba(0,0,0,.18);
+  }
+  .count {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 17px; height: 17px; padding: 0 5px; border-radius: 999px;
+    font-size: 10.5px; font-weight: 700;
+    background: color-mix(in oklab, var(--primary-foreground) 18%, transparent);
+  }
+
+  /* icon toggles (annotations / AI / agents / tree) */
+  .tgl {
+    position: relative; width: 28px; height: 28px; border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--muted-foreground); background: transparent; flex: none;
+  }
+  .tgl.active { background: color-mix(in oklab, var(--primary) 15%, transparent); color: var(--primary); }
+  .tgl .badge {
+    position: absolute; top: -4px; right: -4px; min-width: 14px; height: 14px; padding: 0 2px;
+    border-radius: 999px; background: var(--primary); color: var(--primary-foreground);
+    font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+  }
+  .chip {
+    height: 28px; padding: 0 10px; border-radius: 6px; border: none;
+    background: var(--muted); color: var(--foreground);
+    font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; flex: none;
+    font-family: inherit;
+  }
+  .chip.quiet { background: transparent; color: var(--muted-foreground); }
+  .branch { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; }
+  .repo { font-size: 12px; color: color-mix(in oklab, var(--muted-foreground) 60%, transparent); display: inline-flex; align-items: center; gap: 5px; }
+
+  /* popovers / dialogs */
+  .float-zone { position: relative; padding: 14px 16px 18px; display: flex; justify-content: flex-end; background: repeating-linear-gradient(45deg, transparent, transparent 6px, color-mix(in oklab, var(--muted) 40%, transparent) 6px, color-mix(in oklab, var(--muted) 40%, transparent) 7px); }
+  .tooltip {
+    width: 224px; padding: 8px 12px; text-align: center; font-size: 12px;
+    background: var(--popover); border: 1px solid var(--border); border-radius: 8px;
+    box-shadow: 0 12px 32px -8px rgba(0,0,0,.55);
+  }
+  .composer {
+    width: 352px; padding: 6px; border-radius: 8px;
+    background: var(--popover); border: 1px solid var(--border);
+    box-shadow: 0 12px 32px -8px rgba(0,0,0,.55);
+  }
+  .composer textarea, .composer .ta {
+    display: block; width: 100%; min-height: 52px; resize: none;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--background); color: var(--foreground);
+    padding: 6px 10px; font-size: 13.5px; line-height: 1.4; font-family: inherit;
+  }
+  .composer .ta.empty { color: var(--muted-foreground); }
+  .composer-foot { margin-top: 6px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 2px; }
+  .hint { font-size: 11px; color: var(--muted-foreground); }
+  kbd {
+    display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 16px; padding: 0 4px;
+    border-radius: 4px; background: var(--muted); border: 1px solid color-mix(in oklab, var(--border) 60%, transparent);
+    border-bottom-width: 2px; font-family: ui-monospace, monospace; font-size: 9.5px;
+    color: color-mix(in oklab, var(--foreground) 65%, transparent);
+  }
+  .dialog {
+    width: 400px; border-radius: 12px; background: var(--card); border: 1px solid var(--border);
+    padding: 18px; box-shadow: 0 20px 50px -12px rgba(0,0,0,.6);
+  }
+  .dialog h4 { margin: 0 0 6px; font-size: 15px; font-weight: 600; }
+  .dialog p { margin: 0 0 4px; font-size: 13px; color: var(--muted-foreground); }
+  .dialog .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+  .dialog-row { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-start; padding: 16px; }
+
+  /* inventory table */
+  table.inv { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 14px 0 6px; }
+  table.inv th, table.inv td { text-align: left; padding: 7px 10px; border-bottom: 1px solid color-mix(in oklab, var(--border) 45%, transparent); vertical-align: top; }
+  table.inv th { color: var(--muted-foreground); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+  table.inv td:first-child { white-space: nowrap; font-weight: 550; }
+  .pill { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 11px; font-weight: 600; margin: 1px 2px 1px 0; white-space: nowrap; }
+  .pill.close { background: var(--muted); color: var(--muted-foreground); }
+  .pill.send { border: 1px solid var(--input); color: var(--foreground); }
+  .pill.ok { background: color-mix(in oklab, var(--success) 28%, transparent); color: var(--success); }
+  .pill.ok-dim { background: color-mix(in oklab, var(--success) 14%, transparent); color: color-mix(in oklab, var(--success) 70%, transparent); }
+  .pill.pri { background: color-mix(in oklab, var(--primary) 26%, transparent); color: var(--primary); }
+  .pill.none { color: color-mix(in oklab, var(--muted-foreground) 55%, transparent); font-weight: 400; }
+
+  .rule-card {
+    border: 1px solid color-mix(in oklab, var(--primary) 30%, var(--border));
+    background: color-mix(in oklab, var(--primary) 6%, var(--card));
+    border-radius: 12px; padding: 18px 20px; margin: 18px 0 26px;
+  }
+  .rule-card h3 { margin: 0 0 10px; font-size: 14px; font-weight: 650; }
+  .rule-card ol { margin: 0; padding-left: 20px; font-size: 13.5px; }
+  .rule-card li { margin-bottom: 7px; }
+  .rule-card li:last-child { margin-bottom: 0; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 860px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Plannotator header &amp; action states</h1>
+  <p class="subtitle">
+    A clean-room study of the annotate and code-review header action clusters: what every state
+    looks like today (mockups built from the real component code — <code>AppHeader.tsx</code>,
+    <code>AgentReviewActions.tsx</code>, <code>ToolbarButtons.tsx</code>, <code>ui/button.tsx</code>),
+    and one reconciled model. Companion rationale: <code>DESIGN_header-states.md</code>.
+    <b>Interactive proposal prototype (click-through of every transition):</b> <a href="DESIGN_header-prototype.html" style="color:var(--primary)">DESIGN_header-prototype.html</a>.
+  </p>
+
+  <!-- ============================================================ -->
+  <h2><span class="n">1</span>Current — annotate header (no gate flags)</h2>
+  <p class="lede">
+    Mode <code>annotate</code>, three session flavors (single file, folder, annotate-last).
+    All three render the <b>same action chrome</b>; only the document title, export heading, and the
+    consequence of Close differ. Buttons are <code>size=xs</code> (28&nbsp;px): Close is
+    <code>secondary</code> forced to <code>bg-muted text-muted-foreground</code>, Send Feedback is
+    <code>outline</code> with a Send icon. Without <code>--gate</code> there is <b>no Approve button at all</b>.
+  </p>
+
+  <div class="state">
+    <div class="state-title">A1 — Zero annotations (file, folder, or message)</div>
+    <p class="state-sub">The only action offered is Close. There is no positive "reviewed, looks fine" gesture in the header — yet <span style="white-space:nowrap"><kbd>⌘</kbd><kbd>↩</kbd></span> silently submits "User reviewed the document and has no feedback."</p>
+    <div class="frame">
+      <div class="frame-tag current"><span class="dot"></span>Current<span class="file">packages/editor/components/AppHeader.tsx:312-339</span></div>
+      <div class="hdr">
+        <div class="hdr-left"><span class="wordmark">Plannotator</span></div>
+        <div class="hdr-right">
+          <button class="btn btn-close">Close</button>
+          <div class="divider"></div>
+          <span class="tgl"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg></span>
+          <span class="tgl"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.9 15.5a2 2 0 0 0-1.4-1.4l-6.1-1.6a.5.5 0 0 1 0-1l6.1-1.6a2 2 0 0 0 1.4-1.4l1.6-6.1a.5.5 0 0 1 1 0l1.6 6.1a2 2 0 0 0 1.4 1.4l6.1 1.6a.5.5 0 0 1 0 1l-6.1 1.6a2 2 0 0 0-1.4 1.4l-1.6 6.1a.5.5 0 0 1-1 0z"/></svg></span>
+          <button class="chip quiet"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>Options</button>
+        </div>
+      </div>
+    </div>
+    <p class="caption"><b>Close</b> POSTs <code>/api/exit</code> → decision record "dismissed"; the agent gets no content. Annotations toggle, Ask&nbsp;AI, and Options are ambient chrome present in every state (omitted from later captions).</p>
+  </div>
+
+  <div class="state">
+    <div class="state-title">A2 — Annotations present (3)</div>
+    <p class="state-sub">Send Feedback appears (progressive disclosure — the flag also counts direct edits, linked-doc notes, attachments, and saved file changes). Close now routes through the "Feedback Won't Be Sent" warning dialog.</p>
+    <div class="frame">
+      <div class="frame-tag current"><span class="dot"></span>Current<span class="file">AppHeader.tsx:314-329 · hasAnyAnnotations</span></div>
+      <div class="hdr">
+        <div class="hdr-left"><span class="wordmark">Plannotator</span></div>
+        <div class="hdr-right">
+          <button class="btn btn-close">Close</button>
+          <button class="btn btn-outline"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m22 2-7 20-4-9-9-4Z"/><path stroke-linecap="round" d="M22 2 11 13"/></svg>Send Feedback</button>
+          <div class="divider"></div>
+          <span class="tgl active"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg><span class="badge">3</span></span>
+          <span class="tgl"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.9 15.5a2 2 0 0 0-1.4-1.4l-6.1-1.6a.5.5 0 0 1 0-1l6.1-1.6a2 2 0 0 0 1.4-1.4l1.6-6.1a.5.5 0 0 1 1 0l1.6 6.1a2 2 0 0 0 1.4 1.4l6.1 1.6a.5.5 0 0 1 0 1l-6.1 1.6a2 2 0 0 0-1.4 1.4l-1.6 6.1a.5.5 0 0 1-1 0z"/></svg></span>
+          <button class="chip quiet"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>Options</button>
+        </div>
+      </div>
+    </div>
+    <p class="caption">The annotate app's general-comment affordance lives elsewhere: a floating <b>Global comment</b> button in the document card's tool cluster (<code>Viewer.tsx:872</code>) — not in the header.</p>
+  </div>
+
+  <div class="state">
+    <div class="state-title">A3 — HTML / live-app surface</div>
+    <p class="state-sub">Raw-HTML and live-app annotate sessions add three controls between the action buttons and the panel toggles: the eye (show/hide floating tools), Refresh-from-disk (local rendered HTML only), and the Interact/Annotate pen (armed = pressed).</p>
+    <div class="frame">
+      <div class="frame-tag current"><span class="dot"></span>Current<span class="file">AppHeader.tsx:381-393 · HtmlSurfaceControls</span></div>
+      <div class="hdr">
+        <div class="hdr-left"><span class="wordmark">Plannotator</span></div>
+        <div class="hdr-right">
+          <button class="btn btn-close">Close</button>
+          <button class="btn btn-outline"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m22 2-7 20-4-9-9-4Z"/><path stroke-linecap="round" d="M22 2 11 13"/></svg>Send Feedback</button>
+          <div class="divider"></div>
+          <span class="tgl"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <span class="tgl"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 3v5h-5"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H3v5"/></svg></span>
+          <span class="tgl active"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21.17 6.81a1 1 0 0 0-3.98-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.63l4.35-1.32a2 2 0 0 0 .83-.5z"/></svg></span>
+          <div class="divider"></div>
+          <span class="tgl"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg></span>
+          <button class="chip quiet"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>Options</button>
+        </div>
+      </div>
+    </div>
+    <p class="caption">These are <b>document-surface</b> controls, not session actions. They are orthogonal to this study and the proposal keeps them exactly where they are.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2><span class="n">2</span>Current — code review header (agent mode)</h2>
+  <p class="lede">
+    <code>AgentReviewActions</code> (all non-platform origins). Left side: navigator toggle, Guide,
+    branch + repo. Right side: staleness banners, then the action cluster, then sidebar-tab toggles
+    (annotations / AI / agents) and Options.
+  </p>
+
+  <div class="state">
+    <div class="state-title">B1 — Zero annotations</div>
+    <p class="state-sub">Close + Approve. Send Feedback is hidden (progressive disclosure landed with the Close-button PR, #523 — the released complaint predates it). Approve immediately POSTs the LGTM.</p>
+    <div class="frame">
+      <div class="frame-tag current"><span class="dot"></span>Current<span class="file">packages/review-editor/components/AgentReviewActions.tsx:37-76</span></div>
+      <div class="hdr hdr-review">
+        <div class="hdr-left">
+          <span class="tgl"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10h7a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2.5a1 1 0 0 1-.8-.4l-.9-1.2A1 1 0 0 0 15 3h-2a1 1 0 0 0-1 1z"/><path d="M13 21h7a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-2.9a1 1 0 0 1-.9-.55l-.44-.9a1 1 0 0 0-.9-.55H13a1 1 0 0 0-1 1z"/><path d="M3 5a2 2 0 0 0 2 2h3"/><path d="M3 3v13a2 2 0 0 0 2 2h3"/></svg></span>
+          <div class="divider"></div>
+          <button class="chip">Guide</button>
+          <div class="divider"></div>
+          <span class="branch">feat/embed-picker</span>
+          <span class="repo"><svg class="i" style="width:12px;height:12px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>ramos/plannotator</span>
+        </div>
+        <div class="hdr-right">
+          <button class="btn btn-close">Close</button>
+          <button class="btn btn-success"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>Approve</button>
+          <div class="divider"></div>
+          <span class="tgl"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg></span>
+          <span class="tgl"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.9 15.5a2 2 0 0 0-1.4-1.4l-6.1-1.6a.5.5 0 0 1 0-1l6.1-1.6a2 2 0 0 0 1.4-1.4l1.6-6.1a.5.5 0 0 1 1 0l1.6 6.1a2 2 0 0 0 1.4 1.4l6.1 1.6a.5.5 0 0 1 0 1l-6.1 1.6a2 2 0 0 0-1.4 1.4l-1.6 6.1a.5.5 0 0 1-1 0z"/></svg></span>
+          <span class="tgl"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="5" y="8" width="14" height="10" rx="2"/><path stroke-linecap="round" d="M12 8V5M9 12h.01M15 12h.01"/></svg></span>
+          <div class="divider"></div>
+          <button class="chip quiet"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>Options</button>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Annotate at zero shows <span class="pill close">Close</span> alone; review shows <span class="pill close">Close</span><span class="pill ok">Approve</span>. <b>The two apps disagree about what an empty session offers</b>, and neither surfaces the note-on-the-way-out gesture users ask for.</p>
+  </div>
+
+  <div class="state">
+    <div class="state-title">B2 — Annotations present (3)</div>
+    <p class="state-sub">Send Feedback appears between Close and Approve; Approve dims to 50% and grows a hover tooltip. Approving or closing with annotations opens an "Annotations Won't Be Sent" confirm; approve genuinely discards them (runtime consumers ignore feedback on approve).</p>
+    <div class="frame">
+      <div class="frame-tag current"><span class="dot"></span>Current<span class="file">AgentReviewActions.tsx:46-75 · App.tsx:4284-4291</span></div>
+      <div class="hdr hdr-review">
+        <div class="hdr-left">
+          <span class="tgl"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10h7a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2.5a1 1 0 0 1-.8-.4l-.9-1.2A1 1 0 0 0 15 3h-2a1 1 0 0 0-1 1z"/><path d="M13 21h7a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-2.9a1 1 0 0 1-.9-.55l-.44-.9a1 1 0 0 0-.9-.55H13a1 1 0 0 0-1 1z"/><path d="M3 5a2 2 0 0 0 2 2h3"/><path d="M3 3v13a2 2 0 0 0 2 2h3"/></svg></span>
+          <div class="divider"></div>
+          <button class="chip">Guide</button>
+          <div class="divider"></div>
+          <span class="branch">feat/embed-picker</span>
+          <span class="repo"><svg class="i" style="width:12px;height:12px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>ramos/plannotator</span>
+        </div>
+        <div class="hdr-right">
+          <button class="btn btn-close">Close</button>
+          <button class="btn btn-outline"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m22 2-7 20-4-9-9-4Z"/><path stroke-linecap="round" d="M22 2 11 13"/></svg>Send Feedback</button>
+          <button class="btn btn-success dimmed"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>Approve</button>
+          <div class="divider"></div>
+          <span class="tgl active"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg><span class="badge">3</span></span>
+          <span class="tgl"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.9 15.5a2 2 0 0 0-1.4-1.4l-6.1-1.6a.5.5 0 0 1 0-1l6.1-1.6a2 2 0 0 0 1.4-1.4l1.6-6.1a.5.5 0 0 1 1 0l1.6 6.1a2 2 0 0 0 1.4 1.4l6.1 1.6a.5.5 0 0 1 0 1l-6.1 1.6a2 2 0 0 0-1.4 1.4l-1.6 6.1a.5.5 0 0 1-1 0z"/></svg></span>
+          <span class="tgl"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="5" y="8" width="14" height="10" rx="2"/><path stroke-linecap="round" d="M12 8V5M9 12h.01M15 12h.01"/></svg></span>
+          <div class="divider"></div>
+          <button class="chip quiet"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>Options</button>
+        </div>
+      </div>
+      <div class="float-zone">
+        <div class="tooltip">Your 3 annotations won't be sent if you approve.</div>
+      </div>
+    </div>
+    <p class="caption">Three same-weight buttons, one of which (<b>Approve</b>) is now a trap guarded by a tooltip <i>and</i> a confirm dialog. There is no human way to add an <b>overall</b> comment — the sidebar's General section renders only tool-created annotations.</p>
+  </div>
+
+  <div class="state">
+    <div class="state-title">B3 — The guard dialogs papering over the state mismatch</div>
+    <p class="state-sub">Both apps carry warning/dead-end dialogs whose only job is to compensate for buttons offered in the wrong state.</p>
+    <div class="frame">
+      <div class="frame-tag current"><span class="dot"></span>Current<span class="file">review App.tsx:4970-5010 · editor App.tsx:6174-6276</span></div>
+      <div class="dialog-row">
+        <div class="dialog">
+          <h4>Annotations Won't Be Sent</h4>
+          <p>You have 3 annotations that will be lost if you approve.</p>
+          <p>To send your feedback, use Send Feedback instead.</p>
+          <div class="actions"><button class="btn btn-close">Cancel</button><button class="btn btn-outline">Approve Anyway</button></div>
+        </div>
+        <div class="dialog">
+          <h4>Add Feedback First</h4>
+          <p>To provide feedback, add annotations or direct edits. Claude will use your feedback to revise the plan.</p>
+          <div class="actions"><button class="btn btn-close">OK</button></div>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Left: review's approve/close-with-annotations confirm. Right: plan mode's dead end when Send Feedback is pressed with nothing to send (review's twin is "No Annotations"). Adaptive buttons make the right-hand class of dialog unreachable.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2><span class="n">3</span>In-flight — the "send with a note" split pill (context, not settled)</h2>
+  <p class="lede">
+    Branches <code>feat/annotate-submit-with-note</code> / <code>feat/review-submit-with-note</code>:
+    an always-visible <b>[Send Feedback | ▾]</b> pill. The caret opens a note composer; the note lands as a
+    GLOBAL_COMMENT (annotate) or a general CodeAnnotation (review) and rides the normal feedback POST.
+    With <b>zero</b> feedback the left segment stops sending and instead opens the panel.
+  </p>
+
+  <div class="state">
+    <div class="state-title">C1 — Split pill, composer open (branch behavior)</div>
+    <div class="frame">
+      <div class="frame-tag inflight"><span class="dot"></span>In-flight<span class="file">git show origin/feat/review-submit-with-note:…/ReviewSendControl.tsx</span></div>
+      <div class="hdr hdr-review">
+        <div class="hdr-left"><span class="branch">feat/embed-picker</span><span class="repo">ramos/plannotator</span></div>
+        <div class="hdr-right">
+          <button class="btn btn-close">Close</button>
+          <span class="split split-outline">
+            <button class="btn btn-outline" style="opacity:.4"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m22 2-7 20-4-9-9-4Z"/><path stroke-linecap="round" d="M22 2 11 13"/></svg>Send Feedback</button>
+            <span class="seg" style="background:var(--muted);color:var(--foreground)"><svg class="i" style="transform:rotate(180deg)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg></span>
+          </span>
+          <button class="btn btn-success"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>Approve</button>
+        </div>
+      </div>
+      <div class="float-zone" style="justify-content:flex-end; padding-right:120px;">
+        <div class="composer">
+          <div class="ta empty">Add a note...</div>
+          <div class="composer-foot">
+            <span class="hint"><kbd>⌘</kbd><kbd>↩</kbd></span>
+            <button class="btn btn-outline"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m22 2-7 20-4-9-9-4Z"/><path stroke-linecap="round" d="M22 2 11 13"/></svg>Send with additional feedback</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Strong bones: the composer, the note-as-annotation transport, the two-distinct-buttons rule, Esc/Mod+Enter handling, the compact dialog. Two flaws: the pill re-introduces a Send button when there is <b>nothing to send</b>, and at zero feedback the left segment's meaning flips from "send" to "open a panel" — the exact silent-meaning-change the design goals rule out. The proposal keeps the composer and transport, and moves the caret.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ============================================================ -->
+  <h2><span class="n">4</span>Proposed — one control, one decision surface</h2>
+
+  <style>
+    .menu {
+      width: 272px; padding: 4px; border-radius: 8px;
+      background: var(--popover); border: 1px solid var(--border);
+      box-shadow: 0 12px 32px -8px rgba(0,0,0,.55);
+    }
+    .menu-item { display: flex; flex-direction: column; gap: 1px; padding: 7px 10px; border-radius: 6px; }
+    .menu-item:hover { background: color-mix(in oklab, var(--muted) 60%, transparent); }
+    .menu-item .lbl { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 7px; }
+    .menu-item .lbl svg { width: 13px; height: 13px; flex: none; opacity: .85; }
+    .menu-item .sub { font-size: 11.5px; color: var(--muted-foreground); padding-left: 20px; }
+    .menu-item.destructive .lbl { color: var(--destructive); }
+    .menu-item.gated .lbl::after {
+      content: "capability-gated"; margin-left: auto; font-size: 9px; font-weight: 700;
+      letter-spacing: .06em; text-transform: uppercase; color: var(--muted-foreground);
+      border: 1px solid color-mix(in oklab, var(--border) 80%, transparent); border-radius: 999px; padding: 1px 6px;
+    }
+    .menu-divider { height: 1px; margin: 4px 6px; background: color-mix(in oklab, var(--border) 55%, transparent); }
+    .menu-back { display:flex; align-items:center; gap:6px; padding: 4px 6px 6px; font-size: 11px; color: var(--muted-foreground); }
+  </style>
+
+  <div class="rule-card">
+    <h3>The revised model — four rules, both apps</h3>
+    <ol>
+      <li><b>One decision control, ever.</b> A single split pill in a single slot — the header never shows Approve and Send Feedback side by side. The left segment is the state's primary: <b>Done</b> (annotate) / <b>Approve</b> (review) when there is nothing to send; <b>Send Feedback · n</b> when there is. The flip is state-driven and mirrored by the visible count; the left segment always does exactly what its label says, in one click.</li>
+      <li><b>The caret carries the alternate decision(s) and the note — never the header.</b> The caret opens a small action menu; choosing a "…with a note" item expands the composer <b>in place</b>, inside the same popover. Every menu action is explicitly labeled for its whole outcome. In each state the menu offers the opposite decision, so nothing is unreachable: request-changes lives under Done/Approve, approve lives under Send Feedback.</li>
+      <li><b>Close is an escape hatch, not a peer.</b> A quiet ghost X at the cluster's left; warns only when content would be lost; tooltip states the flavor-specific consequence (annotate-last: "Dismiss without telling the agent").</li>
+      <li><b><kbd>⌘</kbd><kbd>↩</kbd> = the visible primary.</b> Outside the popover it triggers the left segment; inside the composer it triggers the composer's labeled action. The keyboard and the header can never disagree, because there is exactly one primary.</li>
+    </ol>
+  </div>
+
+  <div class="state">
+    <div class="state-title">P1 — Nothing to send: one green control</div>
+    <p class="state-sub">"That's fine &amp; done" is one click. The caret's menu holds everything else: the note, and the <i>opposite</i> decision — overall change-request feedback with zero annotations (which is how the in-flight pill's zero-state note path survives, without a Send button in the header).</p>
+
+    <div class="frame">
+      <div class="frame-tag current"><span class="dot"></span>Current — annotate</div>
+      <div class="hdr">
+        <div class="hdr-left"><span class="wordmark">Plannotator</span></div>
+        <div class="hdr-right">
+          <button class="btn btn-close">Close</button>
+          <div class="divider"></div>
+          <button class="chip quiet"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>Options</button>
+        </div>
+      </div>
+    </div>
+    <div class="frame">
+      <div class="frame-tag proposed"><span class="dot"></span>Proposed — annotate (file · folder · last)</div>
+      <div class="hdr">
+        <div class="hdr-left"><span class="wordmark">Plannotator</span></div>
+        <div class="hdr-right">
+          <button class="btn btn-ghost-icon" title="Close without telling the agent"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M18 6 6 18M6 6l12 12"/></svg></button>
+          <span class="split split-success">
+            <button class="btn btn-success"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>Done</button>
+            <span class="seg"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg></span>
+          </span>
+          <div class="divider"></div>
+          <button class="chip quiet"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>Options</button>
+        </div>
+      </div>
+      <div class="float-zone" style="padding-right:96px;">
+        <div class="menu">
+          <div class="menu-item">
+            <span class="lbl"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>Done with a note…</span>
+            <span class="sub">Finish and send a short note with the approval</span>
+          </div>
+          <div class="menu-divider"></div>
+          <div class="menu-item">
+            <span class="lbl"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m22 2-7 20-4-9-9-4Z"/><path stroke-linecap="round" d="M22 2 11 13"/></svg>Request changes…</span>
+            <span class="sub">Write overall feedback — sent as a change request</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="frame">
+      <div class="frame-tag proposed"><span class="dot"></span>Proposed — review</div>
+      <div class="hdr hdr-review">
+        <div class="hdr-left">
+          <span class="tgl"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10h7a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2.5a1 1 0 0 1-.8-.4l-.9-1.2A1 1 0 0 0 15 3h-2a1 1 0 0 0-1 1z"/><path d="M13 21h7a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-2.9a1 1 0 0 1-.9-.55l-.44-.9a1 1 0 0 0-.9-.55H13a1 1 0 0 0-1 1z"/><path d="M3 5a2 2 0 0 0 2 2h3"/><path d="M3 3v13a2 2 0 0 0 2 2h3"/></svg></span>
+          <div class="divider"></div>
+          <button class="chip">Guide</button>
+          <div class="divider"></div>
+          <span class="branch">feat/embed-picker</span>
+          <span class="repo">ramos/plannotator</span>
+        </div>
+        <div class="hdr-right">
+          <button class="btn btn-ghost-icon" title="Close review without feedback"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M18 6 6 18M6 6l12 12"/></svg></button>
+          <span class="split split-success">
+            <button class="btn btn-success"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>Approve</button>
+            <span class="seg"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg></span>
+          </span>
+          <div class="divider"></div>
+          <button class="chip quiet"><svg class="i16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>Options</button>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Review's empty-state menu mirrors the annotate one: <b>"Approve with a note…"</b> / <b>"Request changes…"</b>. "Request changes…" opens the composer; its note lands as a general comment and submits as ordinary feedback — no annotations required.</p>
+  </div>
+
+  <div class="state">
+    <div class="state-title">P2 — Feedback present (3): the control flips, the menu carries approve</div>
+    <p class="state-sub">Send Feedback · n becomes the one promoted primary. Approve does not sit beside it — it moves into the caret's menu, exactly where the alternate decision belongs. The dimmed-Approve trap (50% opacity + hover tooltip + warning dialog) disappears with the button.</p>
+
+    <div class="frame">
+      <div class="frame-tag current"><span class="dot"></span>Current — review</div>
+      <div class="hdr hdr-review">
+        <div class="hdr-left"><span class="branch">feat/embed-picker</span><span class="repo">ramos/plannotator</span></div>
+        <div class="hdr-right">
+          <button class="btn btn-close">Close</button>
+          <button class="btn btn-outline"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m22 2-7 20-4-9-9-4Z"/><path stroke-linecap="round" d="M22 2 11 13"/></svg>Send Feedback</button>
+          <button class="btn btn-success dimmed"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>Approve</button>
+        </div>
+      </div>
+    </div>
+    <div class="frame">
+      <div class="frame-tag proposed"><span class="dot"></span>Proposed — review</div>
+      <div class="hdr hdr-review">
+        <div class="hdr-left"><span class="branch">feat/embed-picker</span><span class="repo">ramos/plannotator</span></div>
+        <div class="hdr-right">
+          <button class="btn btn-ghost-icon"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M18 6 6 18M6 6l12 12"/></svg></button>
+          <span class="split split-primary">
+            <button class="btn btn-primary"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m22 2-7 20-4-9-9-4Z"/><path stroke-linecap="round" d="M22 2 11 13"/></svg>Send Feedback<span class="count">3</span></button>
+            <span class="seg"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg></span>
+          </span>
+        </div>
+      </div>
+      <div class="float-zone" style="padding-right:20px;">
+        <div class="menu">
+          <div class="menu-item">
+            <span class="lbl"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m22 2-7 20-4-9-9-4Z"/><path stroke-linecap="round" d="M22 2 11 13"/></svg>Send with a note…</span>
+            <span class="sub">Add an overall note on top of your 3 annotations</span>
+          </div>
+          <div class="menu-divider"></div>
+          <div class="menu-item gated">
+            <span class="lbl"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>Approve with notes</span>
+            <span class="sub">Approve; your 3 annotations ride along as non-blocking guidance</span>
+          </div>
+          <div class="menu-item destructive">
+            <span class="lbl"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>Approve, discard 3 annotations…</span>
+            <span class="sub">Asks to confirm — the annotations are not sent</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="frame">
+      <div class="frame-tag proposed"><span class="dot"></span>Proposed — annotate</div>
+      <div class="hdr">
+        <div class="hdr-left"><span class="wordmark">Plannotator</span></div>
+        <div class="hdr-right">
+          <button class="btn btn-ghost-icon"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M18 6 6 18M6 6l12 12"/></svg></button>
+          <span class="split split-primary">
+            <button class="btn btn-primary"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m22 2-7 20-4-9-9-4Z"/><path stroke-linecap="round" d="M22 2 11 13"/></svg>Send Feedback<span class="count">3</span></button>
+            <span class="seg"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg></span>
+          </span>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Annotate's feedback-present menu: <b>"Send with a note…"</b> and <b>"Done, discard 3 annotations…"</b> (a positive finish that sends the "reviewed, no feedback" record after confirming — an outcome that today does not exist: Close is a dismissal, not a "reviewed" record). <b>Approve with notes</b> renders only where the runtime's capability advert says feedback survives approval — never a menu item that silently drops content.</p>
+  </div>
+
+  <div class="state">
+    <div class="state-title">P3 — The note composer lives inside the menu popover</div>
+    <p class="state-sub">Choosing any "…with a note" / "Request changes…" item morphs the same popover into the composer (kept from the in-flight branches, extracted once into <code>packages/ui</code>). One anchored surface, two steps, zero extra chrome. Esc steps back and keeps the draft; Mod+Enter fires the composer's labeled action; an empty note refocuses the field.</p>
+    <div class="frame">
+      <div class="frame-tag proposed"><span class="dot"></span>Proposed<span class="file">same popover, after choosing a menu item</span></div>
+      <div class="dialog-row">
+        <div class="composer">
+          <div class="menu-back"><svg style="width:11px;height:11px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>Done with a note</div>
+          <div class="ta">That's fine — ship it as is.</div>
+          <div class="composer-foot">
+            <span class="hint"><kbd>⌘</kbd><kbd>↩</kbd></span>
+            <button class="btn btn-success"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>Done — send note</button>
+          </div>
+        </div>
+        <div class="composer">
+          <div class="menu-back"><svg style="width:11px;height:11px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>Send with a note</div>
+          <div class="ta">Overall: this leans the wrong way — prefer the seam approach from the README.</div>
+          <div class="composer-foot">
+            <span class="hint"><kbd>⌘</kbd><kbd>↩</kbd></span>
+            <button class="btn btn-primary"><svg class="i" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m22 2-7 20-4-9-9-4Z"/><path stroke-linecap="round" d="M22 2 11 13"/></svg>Send feedback with note</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Left: from <b>Done ▾ → Done with a note…</b> (annotate-last "that's fine &amp; submit" — user request 2). Right: from <b>Send Feedback ▾ → Send with a note…</b> (overall direction correction — user request 1). The note lands as a GLOBAL_COMMENT / general CodeAnnotation and rides the normal POST, exactly as in the branches. On compact/touch the whole menu-plus-composer is the branch's dialog pattern.</p>
+  </div>
+
+  <div class="state">
+    <div class="state-title">P4 — Review gets a human general-comment affordance</div>
+    <p class="state-sub">Structural fix for user request 1: the annotations sidebar's General section grows an add button (parity with annotate's floating "Global comment"). A general comment counts as feedback, so adding one flips the control to Send Feedback — the header reacts to it like any annotation.</p>
+    <div class="frame">
+      <div class="frame-tag proposed"><span class="dot"></span>Proposed<span class="file">ReviewSidebar — General section header</span></div>
+      <div style="display:flex; justify-content:flex-end; padding:14px 16px; background: repeating-linear-gradient(45deg, transparent, transparent 6px, color-mix(in oklab, var(--muted) 40%, transparent) 6px, color-mix(in oklab, var(--muted) 40%, transparent) 7px);">
+        <div style="width:300px; border:1px solid var(--border); border-radius:10px; background:var(--card); overflow:hidden;">
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border-bottom:1px solid color-mix(in oklab, var(--border) 50%, transparent); font-size:12px; font-weight:600;">
+            Annotations <span style="color:var(--muted-foreground); font-weight:400;">3</span>
+          </div>
+          <div style="padding:10px 12px; display:flex; align-items:center; justify-content:space-between;">
+            <span style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.07em; color:var(--muted-foreground);">General</span>
+            <button class="chip" style="height:24px; font-size:11.5px;">
+              <svg class="i" style="width:12px;height:12px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
+              General comment
+            </button>
+          </div>
+          <div style="margin:0 12px 12px; padding:8px 10px; border:1px dashed color-mix(in oklab, var(--border) 70%, transparent); border-radius:8px; font-size:12px; color:var(--muted-foreground);">
+            Review-level feedback, not tied to a file or line.
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="caption">The caret's note (P3) remains the fast path; this is the durable one — editable in the panel, visible in the export preview, threaded like every other annotation.</p>
+  </div>
+
+  <div class="state">
+    <div class="state-title">P5 — The only remaining guard: confirming a discard</div>
+    <p class="state-sub">With approve inside the menu, the dim + tooltip + "Annotations Won't Be Sent" stack collapses to one honest confirm on the one destructive item. "Approve with notes" needs no confirm — nothing is lost.</p>
+    <div class="frame">
+      <div class="frame-tag proposed"><span class="dot"></span>Proposed<span class="file">replaces the dimmed-Approve tooltip + warning dialog</span></div>
+      <div class="dialog-row">
+        <div class="dialog" style="width:420px">
+          <h4>Discard 3 annotations and approve?</h4>
+          <p>Your annotations are change requests. Approving without them tells the agent no changes are needed.</p>
+          <div class="actions">
+            <button class="btn btn-close">Cancel</button>
+            <button class="btn btn-outline" style="color:var(--destructive); border-color: color-mix(in oklab, var(--destructive) 45%, var(--input));">Discard &amp; approve</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Annotate's twin ("Done, discard N annotations…") uses the same dialog with "reviewed, no feedback" wording. The existing Close-with-feedback warning stays as-is for the ghost X.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2><span class="n">5</span>State table — before and after</h2>
+  <table class="inv">
+    <thead><tr><th>Surface · state</th><th>Current action cluster</th><th>Proposed (single control + caret menu)</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Annotate (file/folder/last) · empty</td>
+        <td><span class="pill close">Close</span><span class="pill none">— no positive submit; ⌘↩ hidden-sends "no feedback"</span></td>
+        <td><span class="pill close">✕</span><span class="pill ok">Done ▾</span><span class="pill none">menu: with a note · request changes</span></td>
+      </tr>
+      <tr>
+        <td>Annotate · has feedback</td>
+        <td><span class="pill close">Close</span><span class="pill send">Send Feedback</span></td>
+        <td><span class="pill close">✕</span><span class="pill pri">Send Feedback · n ▾</span><span class="pill none">menu: with a note · done-discard (confirm)</span></td>
+      </tr>
+      <tr>
+        <td>Annotate · gate (context)</td>
+        <td><span class="pill close">Close</span><span class="pill send">Send Feedback</span><span class="pill ok">Approve / Approve with Notes</span></td>
+        <td>maps to the review pattern below (gate ≈ review)</td>
+      </tr>
+      <tr>
+        <td>Review (agent) · empty</td>
+        <td><span class="pill close">Close</span><span class="pill ok">Approve</span></td>
+        <td><span class="pill close">✕</span><span class="pill ok">Approve ▾</span><span class="pill none">menu: with a note · request changes</span></td>
+      </tr>
+      <tr>
+        <td>Review (agent) · has feedback</td>
+        <td><span class="pill close">Close</span><span class="pill send">Send Feedback</span><span class="pill ok-dim">Approve (tooltip + confirm)</span></td>
+        <td><span class="pill close">✕</span><span class="pill pri">Send Feedback · n ▾</span><span class="pill none">menu: with a note · approve with notes (gated) · approve-discard (confirm)</span></td>
+      </tr>
+      <tr>
+        <td>In-flight pill · empty</td>
+        <td><span class="pill send">Send Feedback | ▾</span><span class="pill none">left segment opens panel instead of sending</span></td>
+        <td>absorbed: composer + note transport kept verbatim, relocated inside the caret menu of the single control</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="caption" style="margin-top:12px;">
+    Approve and Send Feedback are never simultaneously visible as header buttons — the alternate decision always
+    lives in the caret menu. Keyboard: <kbd>⌘</kbd><kbd>↩</kbd> = the left segment (inside the composer: its labeled
+    action). Compact/touch: the same menu items as ActionMenu rows; the composer is the in-flight dialog. Full
+    rationale, delivery dependencies, and the migration path: <code>DESIGN_header-states.md</code>.
+  </p>
+
+</div>
+</body>
+</html>

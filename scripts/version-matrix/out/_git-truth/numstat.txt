@@ -1,0 +1,11 @@
+1	1	apps/mobile/src/App.tsx
+7	7	apps/mobile/src/screens/Home.tsx
+3	1	apps/web/src/index.ts
+0	6	apps/web/src/legacy.ts
+1	0	bigassets/metrics-6mb.txt
+1	1	packages/universal/src/components/{etoro => spaceship}/Button.tsx
+0	0	packages/universal/src/components/{etoro => spaceship}/Chart.tsx
+8	2	packages/universal/src/components/{etoro/Card.tsx => spaceship/Panel.tsx}
+0	0	packages/universal/src/components/{etoro => spaceship}/theme.ts
+4	4	packages/universal/src/index.ts
+0	0	tools/build.sh
